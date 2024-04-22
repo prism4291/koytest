@@ -35,7 +35,8 @@ async def on_message(message):
 
     if message.content.startswith('$hello'):
         ch=await client.fetch_channel(927206819116490793)
-        await ch.send('Hello!')
+        now = datetime.datetime.now(pytz.timezone('Asia/Tokyo'))
+        await ch.send('Hello!'+str(now))
 
 # Koyeb用 サーバー立ち上げ
 server_thread()
