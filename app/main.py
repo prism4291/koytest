@@ -21,13 +21,20 @@ xxx=0
 async def loop():
     global xxx
     now = datetime.datetime.now(pytz.timezone('Asia/Tokyo'))
-    if now.hour == 1 and now.minute == 1:
+    if now.hour == 1 and now.minute == 20:
         if xxx==0:
             ch=await client.fetch_channel(927206819116490793)
             await ch.send('<@&928999554290970634>')
         xxx=1
     else:
         xxx=0
+
+@client.event
+async def on_ready():
+    loop.start()
+    ch=await client.fetch_channel(927206819116490793)
+    now = datetime.datetime.now(pytz.timezone('Asia/Tokyo'))
+    await ch.send('Hello!'+str(now))
 
 @client.event
 async def on_message(message):
@@ -41,5 +48,4 @@ async def on_message(message):
 
 # Koyeb用 サーバー立ち上げ
 server_thread()
-loop.start()
 client.run(TOKEN)
