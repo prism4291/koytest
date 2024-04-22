@@ -1,4 +1,5 @@
 import discord
+from discord.ext import tasks
 import dotenv
 import os
 import datetime
@@ -40,4 +41,5 @@ async def on_message(message):
 
 # Koyeb用 サーバー立ち上げ
 server_thread()
+loop.start()
 client.run(TOKEN)
