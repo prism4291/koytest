@@ -17,7 +17,8 @@ async def on_message(message):
         return
 
     if message.content.startswith('$hello'):
-        await message.channel.send('Hello!')
+        ch=await client.fetch_channel(927206819116490793)
+        await ch.send('Hello!')
 
 # Koyeb用 サーバー立ち上げ
 server_thread()
