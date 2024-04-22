@@ -21,7 +21,7 @@ xxx=0
 async def loop():
     global xxx
     now = datetime.datetime.now(pytz.timezone('Asia/Tokyo'))
-    if now.hour == 1 and now.minute == 20:
+    if now.hour == 0 and now.minute == 1:
         if xxx==0:
             ch=await client.fetch_channel(927206819116490793)
             await ch.send('<@&928999554290970634>')
