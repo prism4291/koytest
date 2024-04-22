@@ -1,5 +1,6 @@
 import discord
 import dotenv
+import os
 
 from server import server_thread
 
