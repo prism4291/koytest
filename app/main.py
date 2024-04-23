@@ -21,9 +21,9 @@ xxx=0
 async def loop():
     global xxx
     now = datetime.datetime.now(pytz.timezone('Asia/Tokyo'))
-    if now.hour == 0 and now.minute == 1:
+    if now.hour == 6 and now.minute == 0:
         if xxx==0:
-            ch=await client.fetch_channel(1211621332643749918)
+            ch=await client.fetch_channel(768398570566320149)
             l_day=datetime.datetime(2025,1,18,12,tzinfo=pytz.timezone('Asia/Tokyo'))
             diff = l_day - now
             diff_days=int(diff.days)
