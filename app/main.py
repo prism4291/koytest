@@ -39,7 +39,7 @@ async def loop():
                 msg+="\n今日の天気は"+str(jma_weather)+"です"
                 await ch.send(msg)
                 msg=msgs2[diff_days]
-                await ch.send(msg)
+                await ch.send(msg[:20]+"~"+msg[-20:])
                 msg='<@&1231962872360468491> d='+str(diff_days)+'\n'+msgs[diff_days]
                 await ch.send(msg)
                 
@@ -74,7 +74,7 @@ async def on_message(message):
             msg+="\n今日の天気は"+str(jma_weather)+"です"
             await ch.send(msg)
             msg=msgs2[diff_days]
-            await ch.send(msg)
+            await ch.send(msg[:20]+"~"+msg[-20:])
             msg='<@&1231962872360468491> d='+str(diff_days)+'\n'+msgs[diff_days]
             await ch.send(msg)
             
