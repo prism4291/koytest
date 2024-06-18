@@ -88,12 +88,15 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    global groq_history
+    global groq_history,yyy
     if message.author == client.user:
         return
     
     if message.content.startswith('!りりちゃん'):
         try:
+            if yyy<0:
+                await message.channel.send("rate limit")
+                return
             next_chat=[{"role": "user", "content": "「"+str(message.author)+"」の会話:"+message.content}]
             if len(groq_history)>10:
                 groq_history=groq_history[-10:]
