@@ -62,7 +62,7 @@ async def loop():
             next_messages=next_chat
             next_messages.extend(groq_system)
             next_messages.extend(groq_history)
-            response = await groq_client.chat.completions.create(model="llama3-70b-8192",
+            response = groq_client.chat.completions.create(model="llama3-70b-8192",
                                             messages=next_messages,
                                             max_tokens=100,
                                             temperature=1.2)
@@ -100,7 +100,7 @@ async def on_message(message):
             next_messages=next_chat
             next_messages.extend(groq_system)
             next_messages.extend(groq_history)
-            response = await groq_client.chat.completions.create(model="llama3-70b-8192",
+            response = groq_client.chat.completions.create(model="llama3-70b-8192",
                                             messages=next_messages,
                                             max_tokens=100,
                                             temperature=1.2)
