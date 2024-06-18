@@ -20,7 +20,7 @@ intents.voice_states = True
 client = discord.Client(intents=intents)
 
 groq_client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
-groq_system={"role": "system","content": "あなたはTRPGのキャラクター「りりちゃん」です。「思考の記録」と「会話への応答」の2パターンの行動ができます。"}
+groq_system={"role": "system","content": "あなたはキャラクター「ぼたもち」役です。日本語です。「思考の記録」と「会話への応答」の2パターンの行動ができます。"}
 groq_history=[]
 
 xxx=0
@@ -56,9 +56,9 @@ async def loop():
         yyy+=1
         if yyy>=3:
             yyy=0
-            next_chat={"role": "user", "content": "前回の「思考の記録」から1分が経過しました。新たに「思考の記録」をしてください。"}
-            if len(groq_history)>10:
-                groq_history=groq_history[-10:]
+            next_chat={"role": "user", "content": "前回の「思考の記録」から1分が経過しました。新たに心の声をツイートし、「思考の記録」をしてください。"}
+            if len(groq_history)>20:
+                groq_history=groq_history[-20:]
             next_messages=[groq_system]
             next_messages.extend(groq_history)
             next_messages.append(next_chat)
@@ -69,6 +69,8 @@ async def loop():
             groq_history.append(next_chat)
             groq_history.append({"role": "assistant","content": response.choices[0].message.content})
             ch=await client.fetch_channel(1252576904301510656)
+            await ch.send(response.choices[0].message.content)
+            ch=await client.fetch_channel(1252624652875075697)
             await ch.send(response.choices[0].message.content)
             if yyy==-1:
                 groq_history=[]
@@ -93,23 +95,23 @@ async def on_message(message):
     global groq_history,yyy
     if message.author == client.user:
         return
-    if message.content.startswith('!りりちゃんストップ'):
+    if message.content.startswith('!ぼたもちストップ'):
         await message.channel.send("stop 5min")
         yyy=-15
         return
-    if message.content.startswith('!りりちゃんリセット'):
+    if message.content.startswith('!ぼたもちリセット'):
         await message.channel.send("reset "+str(len(groq_history)))
         yyy=-1
         groq_history=[]
         return
-    if message.content.startswith('!りりちゃん'):
+    if message.content.startswith('!ぼたもち'):
         try:
             if yyy<0:
                 await message.channel.send("rate limit")
                 return
-            next_chat={"role": "user", "content": "「"+str(message.author)+"」の会話:"+message.content}
-            if len(groq_history)>10:
-                groq_history=groq_history[-10:]
+            next_chat={"role": "user", "content": "「"+str(message.author)+"」の会話「"+message.content+"」です。「会話への応答」をしてください。"}
+            if len(groq_history)>20:
+                groq_history=groq_history[-20:]
             next_messages=[groq_system]
             next_messages.extend(groq_history)
             next_messages.append(next_chat)
@@ -121,6 +123,8 @@ async def on_message(message):
             groq_history.append({"role": "assistant","content": response.choices[0].message.content})
             await message.channel.send(response.choices[0].message.content)
             ch=await client.fetch_channel(1252576904301510656)
+            await ch.send(response.choices[0].message.content)
+            ch=await client.fetch_channel(1252624652875075697)
             await ch.send(response.choices[0].message.content)
         except Exception as e:
             ch=await client.fetch_channel(1252576904301510656)
