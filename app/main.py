@@ -70,6 +70,8 @@ async def loop():
             groq_history.append({"role": "assistant","content": response.choices[0].message.content})
             ch=await client.fetch_channel(1252576904301510656)
             await ch.send(response.choices[0].message.content)
+            if yyy==-1:
+                groq_history=[]
             
     except Exception as e:
         ch=await client.fetch_channel(1252576904301510656)
@@ -91,7 +93,15 @@ async def on_message(message):
     global groq_history,yyy
     if message.author == client.user:
         return
-    
+    if message.content.startswith('!りりちゃんストップ'):
+        await message.channel.send("stop 5min")
+        yyy=-15
+        return
+    if message.content.startswith('!りりちゃんリセット'):
+        await message.channel.send("reset "+str(len(groq_history)))
+        yyy=-1
+        groq_history=[]
+        return
     if message.content.startswith('!りりちゃん'):
         try:
             if yyy<0:
