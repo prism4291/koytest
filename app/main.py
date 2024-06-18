@@ -7,6 +7,7 @@ import pytz
 import random
 import requests
 import json
+from groq import Groq
 
 from server import server_thread
 
@@ -55,19 +56,19 @@ async def loop():
         yyy+=1
         if yyy>=3:
             yyy=0
-            next_chat={"role": "user", "content": "前回の「思考の記録」から1分が経過しました。新たに「思考の記録」をしてください。"}
+            next_chat=[{"role": "user", "content": "前回の「思考の記録」から1分が経過しました。新たに「思考の記録」をしてください。"}]
             groq_history.extend(next_chat)
             if len(groq_history)>100:
                 groq_history=groq_history[-100:]
             next_messages=groq_system
             next_messages.extend(groq_history)
-            response = client.chat.completions.create(model="llama3-70b-8192",
-                                            messages=next_chat,
+            response = groq_client.chat.completions.create(model="llama3-70b-8192",
+                                            messages=next_messages,
                                             max_tokens=100,
                                             temperature=1.2)
             groq_history.append({"role": "assistant","content": response.choices[0].message.content})
             ch=await client.fetch_channel(1252576904301510656)
-            await ch.send(response)
+            await ch.send(response.choices[0].message.content)
             
     except Exception as e:
         ch=await client.fetch_channel(1252576904301510656)
@@ -91,20 +92,21 @@ async def on_message(message):
     
     if message.content.startswith('!りりちゃん'):
         try:
-            next_chat={"role": "user", "content": "「"str(message.author)+"」の会話:"+message.content}
+            next_chat=[{"role": "user", "content": "「"+str(message.author)+"」の会話:"+message.content}]
             groq_history.extend(next_chat)
             if len(groq_history)>100:
                 groq_history=groq_history[-100:]
             next_messages=groq_system
             next_messages.extend(groq_history)
-            response = client.chat.completions.create(model="llama3-70b-8192",
-                                            messages=next_chat,
+            print(next_messages)
+            response = groq_client.chat.completions.create(model="llama3-70b-8192",
+                                            messages=next_messages,
                                             max_tokens=100,
                                             temperature=1.2)
             groq_history.append({"role": "assistant","content": response.choices[0].message.content})
-            await message.channel.send(response)
+            await message.channel.send(response.choices[0].message.content)
             ch=await client.fetch_channel(1252576904301510656)
-            await ch.send(response)
+            await ch.send(response.choices[0].message.content)
         except Exception as e:
             ch=await client.fetch_channel(1252576904301510656)
             ee=str(e)
