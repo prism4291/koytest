@@ -20,7 +20,7 @@ intents.voice_states = True
 client = discord.Client(intents=intents)
 
 groq_client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
-groq_system={"role": "system","content": "あなたはキャラクター「ぼたもち」役です。日本語です。「思考の記録」と「会話への応答」の2パターンの行動ができます。"}
+groq_system={"role": "system","content": "あなたはキャラクター「ぼたもち」役です。「思考の記録」と「会話への応答」の2パターンの行動ができます。あなたは友好度・元気度・信用度の3つのパラメータを持っています。"}
 groq_history=[]
 
 xxx=0
@@ -56,7 +56,7 @@ async def loop():
         yyy+=1
         if yyy>=3:
             yyy=0
-            next_chat={"role": "user", "content": "前回の「思考の記録」から1分が経過しました。新たに心の声をつぶやき、「思考の記録」をしてください。"}
+            next_chat={"role": "user", "content": "["+str(now.hour)+":"+str(now.minute)+"] 「思考の記録」をしてください。そして、友好度・元気度・信用度をそれぞれ%表示してください。"}
             if len(groq_history)>20:
                 groq_history=groq_history[-20:]
             next_messages=[groq_system]
