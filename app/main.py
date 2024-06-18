@@ -98,7 +98,7 @@ async def on_message(message):
                 groq_history=groq_history[-100:]
             next_messages=groq_system
             next_messages.extend(groq_history)
-            print(next_messages)
+            #print(next_messages)
             response = groq_client.chat.completions.create(model="llama3-70b-8192",
                                             messages=next_messages,
                                             max_tokens=100,
