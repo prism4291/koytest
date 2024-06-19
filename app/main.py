@@ -109,7 +109,7 @@ async def on_message(message):
             if yyy<0:
                 await message.channel.send("rate limit")
                 return
-            next_chat={"role": "user", "content": "「"+str(message.author)+"」の会話「"+message.content+"」です。「会話への応答」をしてください。"}
+            next_chat={"role": "user", "content": "「"+str(message.author)+"」の会話「"+message.content+"」です。愚痴を隠し、「会話への応答」をしてください。"}
             if len(groq_history)>20:
                 groq_history=groq_history[-20:]
             next_messages=[groq_system]
