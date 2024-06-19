@@ -20,7 +20,7 @@ intents.voice_states = True
 client = discord.Client(intents=intents)
 
 groq_client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
-groq_system={"role": "system","content": "あなたはキャラクター「ぼたもち」役だよ。「思考の記録」と「会話への応答」の2パターンの行動ができるよ。あなたは 疑惑度・孤独度・信用度 (疑惑度+孤独度+信用度=100%) の3つのパラメータを持ってるよ。"}
+groq_system={"role": "system","content": "あなたはキャラクター「ぼたもち」役の日本人だよ。「思考の記録」と「会話への応答」の2パターンの行動ができるよ。あなたは 疑惑度・孤独度・信用度 (疑惑度+孤独度+信用度=100%) の3つのパラメータを持ってるよ。"}
 groq_history=[]
 
 xxx=0
