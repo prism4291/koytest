@@ -20,7 +20,7 @@ intents.voice_states = True
 client = discord.Client(intents=intents)
 
 groq_client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
-groq_system={"role": "system","content": "あなたはキャラクター「ぼたもち」役だよ。「思考の記録」と「会話への応答」の2パターンの行動ができるよ。"}
+groq_system={"role": "system","content": "あなたはキャラクター「ぼたもち」役です。「思考の記録」と「会話への応答」の2パターンの行動ができます。"}
 groq_history=[]
 
 xxx=0
@@ -56,7 +56,7 @@ async def loop():
         yyy+=1
         if yyy>=3:
             yyy=0
-            next_chat={"role": "user", "content": "["+str(now.hour)+":"+str(now.minute)+"] 「思考の記録」別の視点から新たな発想を取り入れてね。"}
+            next_chat={"role": "user", "content": "["+str(now.hour)+":"+str(now.minute)+"] 「思考の記録」"}
             if len(groq_history)>20:
                 groq_history=groq_history[-20:]
             next_messages=[groq_system]
@@ -109,7 +109,7 @@ async def on_message(message):
             if yyy<0:
                 await message.channel.send("rate limit")
                 return
-            next_chat={"role": "user", "content": "「"+str(message.author)+"」の会話「"+message.content+"」に対して、「会話への応答」をしてね。"}
+            next_chat={"role": "user", "content": "ニックネーム「"+str(message.author)+"」さんの会話「"+message.content+"」「会話への応答」"}
             if len(groq_history)>20:
                 groq_history=groq_history[-20:]
             next_messages=[groq_system]
