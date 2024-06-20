@@ -56,7 +56,7 @@ async def loop():
         yyy+=1
         if yyy>=3:
             yyy=0
-            next_chat={"role": "user", "content": "["+str(now.hour)+":"+str(now.minute)+"] 「思考の記録」"}
+            next_chat={"role": "user", "content": "["+str(now.hour)+":"+str(now.minute)+"] 「思考の記録」(ただし、前回と同じことを記録してはいけません)"}
             if len(groq_history)>20:
                 groq_history=groq_history[-20:]
             next_messages=[groq_system]
