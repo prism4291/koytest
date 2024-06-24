@@ -20,11 +20,13 @@ intents.voice_states = True
 client = discord.Client(intents=intents)
 
 groq_client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
-groq_system={"role": "system","content": "あなたはキャラクター「ぼたもち」役です。「思考の記録」と「会話への応答」の2パターンの行動ができます。"}
+groq_system={"role": "system","content": "あなたはキャラクター「ぼたもち」役です。"}
 groq_history=[]
 
 xxx=0
 yyy=0
+
+mee6=[]
 
 @tasks.loop(seconds=20)
 async def loop():
@@ -52,36 +54,8 @@ async def loop():
         xxx=1
     else:
         xxx=0
-    try:
-        yyy+=1
-        if yyy>=3:
-            yyy=0
-            next_chat={"role": "user", "content": "["+str(now.hour)+":"+str(now.minute)+"] 「思考の記録」(ただし、前回と同じことを記録してはいけません)"}
-            if len(groq_history)>20:
-                groq_history=groq_history[-20:]
-            next_messages=[groq_system]
-            next_messages.extend(groq_history)
-            next_messages.append(next_chat)
-            response = groq_client.chat.completions.create(model="llama3-70b-8192",
-                                            messages=next_messages,
-                                            max_tokens=120,
-                                            temperature=1.2)
-            groq_history.append(next_chat)
-            groq_history.append({"role": "assistant","content": response.choices[0].message.content})
-            ch=await client.fetch_channel(1252576904301510656)
-            await ch.send(response.choices[0].message.content)
-            ch=await client.fetch_channel(1252624652875075697)
-            await ch.send(response.choices[0].message.content)
-            if yyy==-1:
-                groq_history=[]
-            
-    except Exception as e:
-        ch=await client.fetch_channel(1252576904301510656)
-        ee=str(e)
-        if len(ee)>2000:
-            ee=ee[:900]+"\n\n"+ee[-900:]
-        await ch.send("loop\n"+ee)
-        yyy=-15
+    
+    
 
 @client.event
 async def on_ready():
@@ -92,8 +66,20 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    global groq_history,yyy
+    global groq_history,yyy,mee6
     if message.author == client.user:
+        return
+    if message.author.id == 159985870458322944:
+        mee6.append(message.content)
+        if len(mee6)==5:
+            mee6_str="\n".join(mee6)
+            next_messages=[{"role": "system","content": "あなたは審査員です。物語を審査します。"},{"role": "user", "content":mee6_str}]
+            response = groq_client.chat.completions.create(model="llama3-70b-8192",
+                                            messages=next_messages,
+                                            max_tokens=120,
+                                            temperature=1.2)
+            await message.channel.send(response.choices[0].message.content)
+            mee6=[]
         return
     if message.content.startswith('!ぼたもちストップ'):
         await message.channel.send("stop 5min")
