@@ -73,7 +73,7 @@ async def on_message(message):
         mee6.append(message.content)
         if len(mee6)==5:
             mee6_str="\n".join(mee6)
-            next_messages=[{"role": "system","content": "あなたは小説家です。日本語で答えてください。"},{"role": "user", "content":"あらすじを考えました。物語を作成してください。"+mee6_str}]
+            next_messages=[{"role": "system","content": "In the following conversation, only the Japanese language is allowed.\nあなたは日本の昔話の小説家です。日本語で答えてください。"},{"role": "user", "content":"あらすじを考えました。物語を日本語で書いてください。"+mee6_str}]
             response = groq_client.chat.completions.create(model="llama3-70b-8192",
                                             messages=next_messages,
                                             max_tokens=1000,
