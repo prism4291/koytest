@@ -78,7 +78,14 @@ async def on_message(message):
                                             messages=next_messages,
                                             max_tokens=1000,
                                             temperature=1.2)
-            await message.channel.send(response.choices[0].message.content)
+            message_split=[]
+            message_to_split=response.choices[0].message.content
+            while len(message_to_split)>2000:
+                message_split.append(message_to_split[0:2000])
+                message_to_split=message_to_split[2000:]
+            message_split.append(message_to_split)
+            for ms in message_split:
+                await message.channel.send(ms)
             mee6=[]
         return
     if message.content.startswith('!ぼたもちストップ'):
