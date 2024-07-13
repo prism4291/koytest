@@ -46,7 +46,7 @@ async def loop():
                 jma_weather = jma_json[0]["timeSeries"][0]["areas"][0]["weathers"][0]
                 msg+="\n今日の天気は"+str(jma_weather)+"です"
                 await ch.send(msg.strip().replace("\n","\n-# "))
-                msg="-# "+msgs2[diff_days]
+                msg="-# "+msgs2[diff_days][:100]
                 await ch.send(msg.strip().replace("\n","\n-# "))
                 msg='-# <@&1231962872360468491> d='+str(diff_days)+'\n'+msgs[diff_days]
                 await ch.send((msg[:900]+"~"+msg[-100:]).strip().replace("\n","\n-# "))
