@@ -45,11 +45,11 @@ async def loop():
                 jma_json = requests.get(jma_url).json()
                 jma_weather = jma_json[0]["timeSeries"][0]["areas"][0]["weathers"][0]
                 msg+="\n今日の天気は"+str(jma_weather)+"です"
-                await ch.send(msg)
+                await ch.send(msg.strip().replace("\n","\n-# "))
                 msg="-# "+msgs2[diff_days]
-                await ch.send(msg)
+                await ch.send(msg.strip().replace("\n","\n-# "))
                 msg='-# <@&1231962872360468491> d='+str(diff_days)+'\n'+msgs[diff_days]
-                await ch.send(msg[:900]+"~"+msg[-100:])
+                await ch.send((msg[:900]+"~"+msg[-100:]).strip().replace("\n","\n-# "))
                 
         xxx=1
     else:
@@ -85,7 +85,7 @@ async def on_message(message):
                 message_to_split=message_to_split[1900:]
             message_split.append(message_to_split)
             for ms in message_split:
-                await message.channel.send("-# "+ms)
+                await message.channel.send("-# "+ms.strip().replace("\n","\n-# "))
             mee6=[]
         return
     if message.content.startswith('!ぼたもちストップ'):
@@ -114,7 +114,7 @@ async def on_message(message):
                                             temperature=1.2)
             groq_history.append(next_chat)
             groq_history.append({"role": "assistant","content": response.choices[0].message.content})
-            await message.channel.send("-# "+response.choices[0].message.content)
+            await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n","\n-# "))
             #ch=await client.fetch_channel(1252576904301510656)
             #await ch.send(response.choices[0].message.content)
             #ch=await client.fetch_channel(1252624652875075697)
