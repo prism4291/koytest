@@ -40,16 +40,16 @@ async def loop():
             diff_days=int(diff.days)
             if diff_days>=0:
                 random.seed(diff_days)
-                msg="今日のやる気は"+["最高","最降","並","波","神","髪","Extreme","Exhausted","有り","蟻"][random.randint(0,9)]+"です"
+                msg="-# 今日のやる気は"+["最高","最降","並","波","神","髪","Extreme","Exhausted","有り","蟻"][random.randint(0,9)]+"です"
                 jma_url = "https://www.jma.go.jp/bosai/forecast/data/forecast/130000.json"
                 jma_json = requests.get(jma_url).json()
                 jma_weather = jma_json[0]["timeSeries"][0]["areas"][0]["weathers"][0]
                 msg+="\n今日の天気は"+str(jma_weather)+"です"
                 await ch.send(msg)
-                msg=msgs2[diff_days]
-                await ch.send(msg[:20]+"~"+msg[-20:])
-                msg='<@&1231962872360468491> d='+str(diff_days)+'\n'+msgs[diff_days]
-                await ch.send(msg[:100]+"~"+msg[-100:])
+                msg="-# "+msgs2[diff_days]
+                await ch.send(msg)
+                msg='-# <@&1231962872360468491> d='+str(diff_days)+'\n'+msgs[diff_days]
+                await ch.send(msg[:900]+"~"+msg[-100:])
                 
         xxx=1
     else:
@@ -80,12 +80,12 @@ async def on_message(message):
                                             temperature=1.2)
             message_split=[]
             message_to_split=response.choices[0].message.content
-            while len(message_to_split)>2000:
-                message_split.append(message_to_split[0:2000])
-                message_to_split=message_to_split[2000:]
+            while len(message_to_split)>1900:
+                message_split.append(message_to_split[0:1900])
+                message_to_split=message_to_split[1900:]
             message_split.append(message_to_split)
             for ms in message_split:
-                await message.channel.send(ms)
+                await message.channel.send("-# "+ms)
             mee6=[]
         return
     if message.content.startswith('!ぼたもちストップ'):
@@ -114,11 +114,11 @@ async def on_message(message):
                                             temperature=1.2)
             groq_history.append(next_chat)
             groq_history.append({"role": "assistant","content": response.choices[0].message.content})
-            await message.channel.send(response.choices[0].message.content)
-            ch=await client.fetch_channel(1252576904301510656)
-            await ch.send(response.choices[0].message.content)
-            ch=await client.fetch_channel(1252624652875075697)
-            await ch.send(response.choices[0].message.content)
+            await message.channel.send("-# "+response.choices[0].message.content)
+            #ch=await client.fetch_channel(1252576904301510656)
+            #await ch.send(response.choices[0].message.content)
+            #ch=await client.fetch_channel(1252624652875075697)
+            #await ch.send(response.choices[0].message.content)
         except Exception as e:
             ch=await client.fetch_channel(1252576904301510656)
             ee=str(e)
