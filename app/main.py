@@ -88,7 +88,19 @@ async def on_message(message):
         groq_history=[]
         return
     if message.content.startswith('!!!ch'):
-        await client.user.edit(nick="prism")
+        try:
+            ch=await client.fetch_channel(768398570566320149)
+            chg=ch.guild
+            ch=await client.fetch_channel(927206819116490793)
+            await ch.send(str(chg.id)+str(chg)+str(chg.me))
+            chu=client.get_guild(chg.id)
+            await chu.me.edit(nick="prism")
+        except Exception as e:
+            ch=await client.fetch_channel(927206819116490793)
+            ee=str(e)
+            if len(ee)>2000:
+                ee=ee[:900]+"\n\n"+ee[-900:]
+            await ch.send("onmessage\n"+ee)
         return
     if message.content.startswith('!ぼたもち'):
         try:
@@ -113,7 +125,7 @@ async def on_message(message):
             #ch=await client.fetch_channel(1252624652875075697)
             #await ch.send(response.choices[0].message.content)
         except Exception as e:
-            ch=await client.fetch_channel(1252576904301510656)
+            ch=await client.fetch_channel(927206819116490793)
             ee=str(e)
             if len(ee)>2000:
                 ee=ee[:900]+"\n\n"+ee[-900:]
