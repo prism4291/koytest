@@ -87,6 +87,9 @@ async def on_message(message):
         yyy=-1
         groq_history=[]
         return
+    if message.content.startswith('!!!ch'):
+        await client.edit(nick="prism")
+        return
     if message.content.startswith('!ぼたもち'):
         try:
             if yyy<0:
