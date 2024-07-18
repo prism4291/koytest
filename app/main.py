@@ -32,14 +32,22 @@ mee6=[]
 async def loop():
     global xxx,yyy,groq_history
     now = datetime.datetime.now(pytz.timezone('Asia/Tokyo'))
-    if now.hour == 6 and now.minute == 0:
+    l_day=datetime.datetime(2025,1,18,12,tzinfo=pytz.timezone('Asia/Tokyo'))
+    diff = l_day - now
+    diff_days=int(diff.days)
+    if now.hour == 0 and now.minute == 0:
         if xxx==0:
             ch=await client.fetch_channel(768398570566320149)
-            l_day=datetime.datetime(2025,1,18,12,tzinfo=pytz.timezone('Asia/Tokyo'))
-            diff = l_day - now
-            diff_days=int(diff.days)
             if diff_days>=0:
-                msg='-# あと'+str(diff_days)+'日 <@&1231962872360468491>'
+                chg=ch.guild
+                chu=client.get_guild(chg.id)
+                await chu.me.edit(nick='あと'+str(diff_days)+'日')
+        xxx=1
+    elif now.hour == 6 and now.minute == 0:
+        if xxx==0:
+            ch=await client.fetch_channel(768398570566320149)
+            if diff_days>=0:
+                msg='<@&1231962872360468491>'
                 await ch.send(msg)
         xxx=1
     else:
@@ -86,21 +94,6 @@ async def on_message(message):
         await message.channel.send("reset "+str(len(groq_history)))
         yyy=-1
         groq_history=[]
-        return
-    if message.content.startswith('!!!ch'):
-        try:
-            ch=await client.fetch_channel(768398570566320149)
-            chg=ch.guild
-            ch=await client.fetch_channel(927206819116490793)
-            await ch.send(str(chg.id)+str(chg)+str(chg.me))
-            chu=client.get_guild(chg.id)
-            await chu.me.edit(nick="prism")
-        except Exception as e:
-            ch=await client.fetch_channel(927206819116490793)
-            ee=str(e)
-            if len(ee)>2000:
-                ee=ee[:900]+"\n\n"+ee[-900:]
-            await ch.send("onmessage\n"+ee)
         return
     if message.content.startswith('!ぼたもち'):
         try:
