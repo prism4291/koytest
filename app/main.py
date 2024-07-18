@@ -39,7 +39,7 @@ async def loop():
             diff = l_day - now
             diff_days=int(diff.days)
             if diff_days>=0:
-                msg='-# <@&1231962872360468491> あと'+str(diff_days)+'日'
+                msg='-# あと'+str(diff_days)+'日 <@&1231962872360468491>'
                 await ch.send(msg)
         xxx=1
     else:
