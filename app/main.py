@@ -88,7 +88,7 @@ async def on_message(message):
         groq_history=[]
         return
     if message.content.startswith('!!!ch'):
-        await client.edit(nick="prism")
+        await client.user.edit(nick="prism")
         return
     if message.content.startswith('!ぼたもち'):
         try:
