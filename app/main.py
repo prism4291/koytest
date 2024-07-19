@@ -20,13 +20,14 @@ intents.voice_states = True
 client = discord.Client(intents=intents)
 
 groq_client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
-groq_system={"role": "system","content": "あなたはキャラクター「ぼたもち」役です。"}
+groq_system={"role": "system","content": "In the following conversation, only the Japanese language is allowed.あなたはキャラクター「ぼたもち」役です。"}
 groq_history=[]
 
 xxx=0
 yyy=0
 
 mee6=[]
+mee6_mode=False
 
 @tasks.loop(seconds=20)
 async def loop():
@@ -64,15 +65,18 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    global groq_history,yyy,mee6
+    global groq_history,yyy,mee6,mee6_mode
     if message.author == client.user:
         return
-    if message.author.id == 159985870458322944:
+    if message.content=="!gacha":
+        mee6_mode=True
+        return
+    if mee6_mode and message.author.id == 159985870458322944:
         mee6.append(message.content)
         if len(mee6)==5:
             mee6_str="\n".join(mee6)
             next_messages=[{"role": "system","content": "In the following conversation, only the Japanese language is allowed.\nあなたは日本の昔話の小説家です。日本語で答えてください。"},{"role": "user", "content":"あらすじを考えました。物語を日本語で書いてください。"+mee6_str}]
-            response = groq_client.chat.completions.create(model="llama3-70b-8192",
+            response = groq_client.chat.completions.create(model="gemma2-9b-it",
                                             messages=next_messages,
                                             max_tokens=1000,
                                             temperature=1.2)
@@ -85,6 +89,7 @@ async def on_message(message):
             for ms in message_split:
                 await message.channel.send("-# "+ms.strip().replace("\n","\n-# "))
             mee6=[]
+            mee6_mode=False
         return
     if message.content.startswith('!ぼたもちストップ'):
         await message.channel.send("stop 5min")
@@ -95,21 +100,21 @@ async def on_message(message):
         yyy=0
         groq_history=[]
         return
-    if message.content.startswith('!ぼたもち'):
+    if message.content.startswith('!ぼたもち') or message.channel.id==1211621332643749918:
         try:
             if yyy<0:
                 yyy+=1
                 await message.channel.send("rate limit")
                 return
-            next_chat={"role": "user", "content": "ニックネーム「"+str(message.author)+"」さんの会話「"+message.content+"」「会話への応答」"}
+            next_chat={"role": "user", "content": "「"+str(message.author)+"」さん:「"+message.content+"」"}
             if len(groq_history)>20:
                 groq_history=groq_history[-20:]
             next_messages=[groq_system]
             next_messages.extend(groq_history)
             next_messages.append(next_chat)
-            response = groq_client.chat.completions.create(model="llama3-70b-8192",
+            response = groq_client.chat.completions.create(model="gemma2-9b-it",
                                             messages=next_messages,
-                                            max_tokens=120,
+                                            max_tokens=360,
                                             temperature=1.2)
             groq_history.append(next_chat)
             groq_history.append({"role": "assistant","content": response.choices[0].message.content})
