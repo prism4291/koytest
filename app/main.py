@@ -65,7 +65,7 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    global groq_history,yyy,mee6,mee6_mode
+    global groq_system,groq_history,yyy,mee6,mee6_mode
     if message.author == client.user:
         return
     if message.content=="!gacha":
@@ -99,6 +99,11 @@ async def on_message(message):
         await message.channel.send("reset "+str(len(groq_history)))
         yyy=0
         groq_history=[]
+        groq_system={"role": "system","content": "In the following conversation, only the Japanese language is allowed.あなたはキャラクター「ぼたもち」役です。"}
+        return
+    if message.content.startswith('!ぼたもちシステム'):
+        groq_system={"role": "system","content": "In the following conversation, only the Japanese language is allowed."+message.content[9:]}
+        await message.channel.send(groq_system["content"])
         return
     if message.content.startswith('!ぼたもち') or message.channel.id==1211621332643749918:
         try:
@@ -118,7 +123,7 @@ async def on_message(message):
                                             temperature=1.2)
             groq_history.append(next_chat)
             groq_history.append({"role": "assistant","content": response.choices[0].message.content})
-            await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n","\n-# "))
+            await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
             #ch=await client.fetch_channel(1252576904301510656)
             #await ch.send(response.choices[0].message.content)
             #ch=await client.fetch_channel(1252624652875075697)
