@@ -124,7 +124,7 @@ async def on_message(message):
                                             temperature=1.2)
             groq_history.append(next_chat)
             groq_history.append({"role": "assistant","content": response.choices[0].message.content})
-            await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
+            await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
             #ch=await client.fetch_channel(1252576904301510656)
             #await ch.send(response.choices[0].message.content)
             #ch=await client.fetch_channel(1252624652875075697)
