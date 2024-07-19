@@ -88,16 +88,17 @@ async def on_message(message):
         return
     if message.content.startswith('!ぼたもちストップ'):
         await message.channel.send("stop 5min")
-        yyy=-15
+        yyy=0
         return
     if message.content.startswith('!ぼたもちリセット'):
         await message.channel.send("reset "+str(len(groq_history)))
-        yyy=-1
+        yyy=0
         groq_history=[]
         return
     if message.content.startswith('!ぼたもち'):
         try:
             if yyy<0:
+                yyy+=1
                 await message.channel.send("rate limit")
                 return
             next_chat={"role": "user", "content": "ニックネーム「"+str(message.author)+"」さんの会話「"+message.content+"」「会話への応答」"}
