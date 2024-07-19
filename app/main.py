@@ -102,6 +102,7 @@ async def on_message(message):
         groq_system={"role": "system","content": "In the following conversation, only the Japanese language is allowed.あなたはキャラクター「ぼたもち」役です。"}
         return
     if message.content.startswith('!ぼたもちシステム'):
+        groq_history=[]
         groq_system={"role": "system","content": "In the following conversation, only the Japanese language is allowed."+message.content[9:]}
         await message.channel.send(groq_system["content"])
         return
