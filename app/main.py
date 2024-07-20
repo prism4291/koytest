@@ -49,6 +49,7 @@ async def loop():
             ch=await client.fetch_channel(768398570566320149)
             if diff_days>=0:
                 msg='<@&1231962872360468491>'
+                msg='あと'+str(diff_days)+'日'
                 await ch.send(msg)
         xxx=1
     else:
