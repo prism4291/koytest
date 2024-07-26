@@ -109,7 +109,7 @@ async def on_message(message):
         return
     if message.content.startswith('!!'):
         character_name=message.content[2:].split(" ")[0]
-        character_sentence=message.content[size(character_name)+2:]
+        character_sentence=message.content[len(character_name)+2:]
         next_messages=[{"role": "system","content": "In the following conversation, only the Japanese language is allowed."+"以下の発言を"+character_name+"の発言に直してください。"}]
         next_chat={"role": "user", "content": character_sentence}
         next_messages.append(next_chat)
