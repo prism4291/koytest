@@ -116,7 +116,7 @@ async def on_message(message):
         response = groq_client.chat.completions.create(model="llama-3.1-70b-versatile",
                                             messages=next_messages,
                                             max_tokens=720,
-                                            temperature=0.95)
+                                            temperature=1.05)
         await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
         return
     if message.content.startswith('!ぼたもち') or message.channel.id==1211621332643749918:
