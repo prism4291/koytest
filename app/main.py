@@ -109,14 +109,14 @@ async def on_message(message):
         return
     if message.content.startswith('!!'):
         character_name=message.content[2:].split(" ")[0]
-        character_sentence=message.content[len(character_name)+2:]
-        next_messages=[{"role": "system","content": "In the following conversation, only the Japanese language is allowed."+"以下の発言を"+character_name+"の発言に直してください。"}]
-        next_chat={"role": "user", "content": character_sentence}
+        character_sentence=message.content[len(character_name)+3:]
+        next_messages=[{"role": "system","content": "In the following conversation, only the Japanese language is allowed."}]
+        next_chat={"role": "user", "content": "以下の発言を\""+character_name+"\"の発言に直してください。\n「"+character_sentence+"」"}
         next_messages.append(next_chat)
         response = groq_client.chat.completions.create(model="llama-3.1-70b-versatile",
                                             messages=next_messages,
-                                            max_tokens=360,
-                                            temperature=1)
+                                            max_tokens=720,
+                                            temperature=0.95)
         await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
         return
     if message.content.startswith('!ぼたもち') or message.channel.id==1211621332643749918:
