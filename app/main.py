@@ -109,11 +109,11 @@ async def on_message(message):
         return
     if message.content.startswith('!!'):
         character_name=message.content[2:].split(" ")[0]
-        character_sentence=message.content[2:].split(" ")[1]
+        character_sentence=message.content[size(character_name)+2:]
         next_messages=[{"role": "system","content": "In the following conversation, only the Japanese language is allowed."+"以下の発言を"+character_name+"の発言に直してください。"}]
         next_chat={"role": "user", "content": character_sentence}
         next_messages.append(next_chat)
-        response = groq_client.chat.completions.create(model="gemma2-9b-it",
+        response = groq_client.chat.completions.create(model="llama-3.1-70b-versatile",
                                             messages=next_messages,
                                             max_tokens=360,
                                             temperature=1)
