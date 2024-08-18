@@ -5,3 +5,4 @@ fastapi==0.110.1
 pytz
 requests
 groq
+graphillion
