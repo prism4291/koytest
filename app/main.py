@@ -129,7 +129,7 @@ async def on_message(message):
         universe = tl.grid(nums[0],nums[1])
         GraphSet.set_universe(universe)
         start = 1
-        end = nums[0]*nums[1]
+        end = (nums[0]+1)*(nums[1]+1)
         paths = GraphSet.paths(start, end)
         total_paths = paths.len()
         await message.channel.send(f"{nums[0]}x{nums[1]}格子グラフの総経路数: {total_paths}")
