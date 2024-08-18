@@ -8,6 +8,8 @@ import random
 import requests
 import json
 from groq import Groq
+from graphillion import GraphSet
+import graphillion.tutorial as tl
 
 from server import server_thread
 
@@ -107,6 +109,26 @@ async def on_message(message):
         groq_system={"role": "system","content": "In the following conversation, only the Japanese language is allowed."+message.content[9:]}
         await message.channel.send(groq_system["content"])
         return
+    if message.content.startswith('!おねえさん'):
+        parts = re.split(r'\D+',message.content)
+        nums=[]
+        for ppp in parts:
+            if ppp:
+                try:
+                    nums.append(int(ppp))
+                except:
+                    pass
+        if len(nums)!=2:
+            await message.channel.send("エラー "+str(nums))
+        if nums[0]>20 or nums[1]>20 or nums[0]<1 or nums[1]<1:
+            await message.channel.send("1以上20以下 "+str(nums))
+        universe = tl.grid(nums[0],nums[1])
+        GraphSet.set_universe(universe)
+        start = 1
+        end = nums[0]*nums[1]
+        paths = GraphSet.paths(start, end)
+        total_paths = paths.len()
+        print(f"{nums[0]}x{nums[1]}格子グラフの総経路数: {total_paths}")
     if message.content.startswith('!!'):
         character_name=message.content[2:].split(" ")[0]
         character_sentence=message.content[len(character_name)+3:]
