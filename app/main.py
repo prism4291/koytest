@@ -9,6 +9,7 @@ import requests
 import json
 from groq import Groq
 import re
+import networkx as nx
 from graphillion import GraphSet
 import graphillion.tutorial as tl
 
