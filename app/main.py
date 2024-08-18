@@ -122,8 +122,10 @@ async def on_message(message):
                     pass
         if len(nums)!=2:
             await message.channel.send("エラー "+str(nums))
-        if nums[0]>16 or nums[1]>16 or nums[0]<1 or nums[1]<1:
-            await message.channel.send("1以上16以下 "+str(nums))
+            return
+        if nums[0]>8 or nums[1]>8 or nums[0]<1 or nums[1]<1:
+            await message.channel.send("1以上8以下 "+str(nums))
+            return
         universe = tl.grid(nums[0],nums[1])
         GraphSet.set_universe(universe)
         start = 1
