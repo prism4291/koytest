@@ -8,6 +8,7 @@ import random
 import requests
 import json
 from groq import Groq
+import re
 from graphillion import GraphSet
 import graphillion.tutorial as tl
 
