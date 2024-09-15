@@ -147,6 +147,7 @@ async def on_message(message):
                                             temperature=1.05)
         await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
         return
+    """
     if message.content.startswith('!ぼたもち画像'):
         img_64=""
         try:
@@ -170,6 +171,7 @@ async def on_message(message):
                                             temperature=1.05)
         await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
         return
+    """
     if message.content.startswith('!ぼたもち') or message.channel.id==1211621332643749918:
         try:
             if yyy<0:
