@@ -12,6 +12,8 @@ import re
 import networkx as nx
 from graphillion import GraphSet
 import graphillion.tutorial as tl
+import base64
+#import io
 
 from server import server_thread
 
@@ -140,6 +142,29 @@ async def on_message(message):
         next_chat={"role": "user", "content": "以下の発言を\""+character_name+"\"の発言に直してください。\n「"+character_sentence+"」"}
         next_messages.append(next_chat)
         response = groq_client.chat.completions.create(model="llama-3.1-70b-versatile",
+                                            messages=next_messages,
+                                            max_tokens=720,
+                                            temperature=1.05)
+        await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
+        return
+    if message.content.startswith('!ぼたもち画像'):
+        img_64=""
+        try:
+            if message.attachments:
+                for attachment in message.attachments:
+                    if attachment.content_type.startswith("image"):
+                        img_bytes = await attachment.read()
+                        img_64=base64.b64encode(img_bytes).decode("utf-8")
+                        break
+        except:
+            img_64=""
+        if img_64=="":
+            await message.channel.send("画像を送ってください")
+            return
+        next_messages=[{"role": "system","content": "In the following conversation, only the Japanese language is allowed."}]
+        next_chat={"role": "user", "content":message.content[5:],"image":img_64}
+        next_messages.append(next_chat)
+        response = groq_client.chat.completions.create(model="llava-v1.5-7b-4096-preview",
                                             messages=next_messages,
                                             max_tokens=720,
                                             temperature=1.05)
