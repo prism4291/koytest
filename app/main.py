@@ -27,21 +27,21 @@ def plot_expression(expression_str):
         expression = sp.sympify(expression_str)
         f = sp.lambdify(x, expression, 'numpy')
         x_vals = np.linspace(-10, 10, 2000)
-        y_vals = f(x_vals)
-        if np.isscalar(y_vals):
-            y_vals = np.full_like(x_vals, y_vals)
-        plt.plot(x_vals, y_vals, zorder=5)
+        y_vals = f(x_vals
+        mask = np.isfinite(y_vals)
+        x_segments = np.split(x_vals, np.where(~mask)[0])
+        y_segments = np.split(y_vals, np.where(~mask)[0])
+        for x_seg, y_seg in zip(x_segments, y_segments):
+            if len(x_seg) > 1:
+                plt.plot(x_seg, y_seg, zorder=2)
+            elif len(x_seg) == 1:
+                plt.scatter(x_seg, y_seg, zorder=2)
         plt.xlabel('x')
         plt.ylabel(f'f(x) = {expression_str}')
         plt.title(f'Graph of {expression_str}')
-        plt.xlim(-10, 10)
-        plt.ylim(-10, 10)
         plt.axhline(0, color='black', linewidth=2, zorder=1)
         plt.axvline(0, color='black', linewidth=2, zorder=1)
-        plt.xticks(np.arange(-10, 11, 1))
-        plt.yticks(np.arange(-10, 11, 1))
         plt.grid(True)
-        plt.gca().set_aspect('equal', adjustable='box')
         buf = io.BytesIO()
         plt.savefig(buf, format='png')
         buf.seek(0)
