@@ -27,7 +27,9 @@ def plot_expression(expression_str):
         expression = sp.sympify(expression_str)
         f = sp.lambdify(x, expression, 'numpy')
         x_vals = np.linspace(-10, 10, 2000)
-        y_vals = f(x_vals
+        y_vals = f(x_vals)
+        if np.isscalar(y_vals):
+            y_vals = np.full_like(x_vals, y_vals)
         mask = np.isfinite(y_vals)
         x_segments = np.split(x_vals, np.where(~mask)[0])
         y_segments = np.split(y_vals, np.where(~mask)[0])
