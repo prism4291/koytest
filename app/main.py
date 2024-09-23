@@ -13,9 +13,36 @@ import networkx as nx
 from graphillion import GraphSet
 import graphillion.tutorial as tl
 import base64
-#import io
+import io
+import sympy as sp
+import numpy as np
+import matplotlib.pyplot as plt
 
 from server import server_thread
+
+x = sp.symbols('x')
+
+def plot_expression(expression_str):
+    try:
+        expression = sp.sympify(expression_str)
+        f = sp.lambdify(x, expression, 'numpy')
+        x_vals = np.linspace(-10, 10, 400)
+        y_vals = f(x_vals)
+        plt.figure()
+        plt.plot(x_vals, y_vals)
+        plt.xlabel('x')
+        plt.ylabel(f'f(x) = {expression_str}')
+        plt.title(f'Graph of {expression_str}')
+        plt.xlim(-10, 10)
+        plt.ylim(-10, 10)
+        plt.grid(True)
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png')
+        buf.seek(0)
+        plt.close()
+        return buf
+    except (sp.SympifyError, ValueError):
+        return None
 
 dotenv.load_dotenv()
 
@@ -172,6 +199,13 @@ async def on_message(message):
         await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
         return
     """
+    if message.content.startswith('!func'):
+        buf = plot_expression(message.content[5:].strip())
+        if buf:
+            await message.channel.send(file=discord.File(buf, 'plot.png'))
+        else:
+            await message.channel.send("エラー")
+        return
     if message.content.startswith('!ぼたもち') or message.channel.id==1211621332643749918:
         try:
             if yyy<0:
