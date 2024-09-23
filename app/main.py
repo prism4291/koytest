@@ -28,6 +28,8 @@ def plot_expression(expression_str):
         f = sp.lambdify(x, expression, 'numpy')
         x_vals = np.linspace(-10, 10, 400)
         y_vals = f(x_vals)
+        if np.isscalar(y_vals):
+            y_vals = np.full_like(x_vals, y_vals)
         plt.plot(x_vals, y_vals)
         plt.xlabel('x')
         plt.ylabel(f'f(x) = {expression_str}')
