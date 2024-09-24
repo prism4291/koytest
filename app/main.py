@@ -19,9 +19,7 @@ from sympy import *
 import numpy as np
 import matplotlib.pyplot as plt
 
-from server import server_thread
-
-x = sp.symbols('x')
+from server import server_threa
 
 def plot_expression(expression_str):
     try:
@@ -38,7 +36,6 @@ def plot_expression(expression_str):
         mask[:-1] = mask[:-1] & ~diff_mask
         x_segments = np.split(x_vals, np.where(~mask)[0])
         y_segments = np.split(y_vals, np.where(~mask)[0])
-        plt.figure(figsize=(10, 8))
         for x_seg, y_seg in zip(x_segments, y_segments):
             if len(x_seg) > 1:
                 plt.plot(x_seg, y_seg, zorder=2)
