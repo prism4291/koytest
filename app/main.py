@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt
 
 from server import server_thread
 
-async def plot_expression(expression_str):
+def plot_expression(expression_str):
     try:
         x = sp.Symbol('x')
         expression = sp.sympify(expression_str)
@@ -214,7 +214,7 @@ async def on_message(message):
         return
     """
     if message.content.startswith('!func'):
-        buf = await plot_expression(message.content[5:].strip())
+        buf = plot_expression(message.content[5:].strip())
         if buf:
             await message.channel.send(file=discord.File(buf, 'plot.png'))
         else:
