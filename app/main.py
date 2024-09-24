@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt
 
 from server import server_threa
 
-def plot_expression(expression_str):
+async def plot_expression(expression_str):
     try:
         x = sp.Symbol('x')
         expression = sp.sympify(expression_str)
@@ -36,6 +36,7 @@ def plot_expression(expression_str):
         mask[:-1] = mask[:-1] & ~diff_mask
         x_segments = np.split(x_vals, np.where(~mask)[0])
         y_segments = np.split(y_vals, np.where(~mask)[0])
+        plt.figure(figsize=(10, 8))
         for x_seg, y_seg in zip(x_segments, y_segments):
             if len(x_seg) > 1:
                 plt.plot(x_seg, y_seg, zorder=2)
@@ -216,7 +217,7 @@ async def on_message(message):
         return
     """
     if message.content.startswith('!func'):
-        buf = plot_expression(message.content[5:].strip())
+        buf = await plot_expression(message.content[5:].strip())
         if buf:
             await message.channel.send(file=discord.File(buf, 'plot.png'))
         else:
