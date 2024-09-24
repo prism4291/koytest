@@ -27,7 +27,7 @@ def plot_expression(expression_str):
     try:
         expression = sp.sympify(expression_str)
         f = sp.lambdify(x, expression, 'numpy')
-        x_vals = np.linspace(-10, 10, 2000)
+        x_vals = np.linspace(-10, 10, 2001)
         y_vals = f(x_vals)
         if np.isscalar(y_vals):
             y_vals = np.full_like(x_vals, y_vals)
