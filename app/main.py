@@ -25,6 +25,7 @@ x = sp.symbols('x')
 
 def plot_expression(expression_str):
     try:
+        x = sp.Symbol('x')
         expression = sp.sympify(expression_str)
         f = sp.lambdify(x, expression, 'numpy')
         x_vals = np.linspace(-10, 10, 2001)
@@ -32,8 +33,12 @@ def plot_expression(expression_str):
         if np.isscalar(y_vals):
             y_vals = np.full_like(x_vals, y_vals)
         mask = np.isfinite(y_vals)
+        diff_mask = np.abs(np.diff(y_vals)) >= 1
+        mask[1:] = mask[1:] & ~diff_mask
+        mask[:-1] = mask[:-1] & ~diff_mask
         x_segments = np.split(x_vals, np.where(~mask)[0])
         y_segments = np.split(y_vals, np.where(~mask)[0])
+        plt.figure(figsize=(10, 8))
         for x_seg, y_seg in zip(x_segments, y_segments):
             if len(x_seg) > 1:
                 plt.plot(x_seg, y_seg, zorder=2)
