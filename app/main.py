@@ -19,7 +19,7 @@ from sympy import *
 import numpy as np
 import matplotlib.pyplot as plt
 
-from server import server_threa
+from server import server_thread
 
 async def plot_expression(expression_str):
     try:
