@@ -30,7 +30,7 @@ def plot_expression(expression_str):
         y_vals = f(x_vals)
         if np.isscalar(y_vals):
             y_vals = np.full_like(x_vals, y_vals)
-        mask = np.isfinite(y_vals) & (np.abs(np.diff(y_vals, prepend=np.nan)) < 1) & (np.abs(np.diff(y_vals, append=np.nan)) < 1)
+        mask = np.isfinite(y_vals) & (np.abs(np.diff(y_vals, prepend=np.nan)) < 20) & (np.abs(np.diff(y_vals, append=np.nan)) < 20)
         x_segments = np.split(x_vals, np.where(~mask)[0])
         y_segments = np.split(y_vals, np.where(~mask)[0])
         plt.figure(figsize=(10, 8))
