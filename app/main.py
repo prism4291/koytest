@@ -15,7 +15,7 @@ import graphillion.tutorial as tl
 import base64
 import io
 import sympy as sp
-from sp import *
+from sympy import *
 import numpy as np
 import matplotlib.pyplot as plt
 
