@@ -52,7 +52,7 @@ def after_playing(error,bgm_path):
         os.remove(bgm_path)
 
 async def play_bgm():
-    ch=await client.fetch_channel(768398570566320149)
+    ch=await client.fetch_channel(927206819116490793)
     global vc
     await ch.send("play_bgm")
     if not vc or not vc.is_connected():
@@ -153,7 +153,7 @@ async def loop():
         xxx=1
     else:
         xxx=0
-    ch=await client.fetch_channel(768398570566320149)
+    ch=await client.fetch_channel(927206819116490793)
     await ch.send("vc"+str(vc))
     if vc:
         await play_bgm()
