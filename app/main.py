@@ -49,7 +49,7 @@ def after_playing(error,bgm_path):
     if os.path.exists(bgm_path):
         os.remove(bgm_path)
 
-def play_bgm():
+async def play_bgm():
     if not vc:
         return
     if vc.is_playing():
@@ -146,7 +146,7 @@ async def loop():
         xxx=0
 
     if vc:
-        play_bgm()
+        await play_bgm()
     
 
 @client.event
@@ -191,11 +191,7 @@ async def on_message(message):
             return
         vc=await message.author.voice.channel.connect()
         await message.channel.send(str(message.author.voice.channel) + "に接続したので、!killでたひにます")
-
-        
-        
-        
-    if message.content.startswith('$kill'):
+    if message.content.startswith('!kill'):
         if vc:
             await vc.disconnect()
             vc=None
