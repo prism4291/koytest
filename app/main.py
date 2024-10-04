@@ -20,6 +20,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import asyncio
 import dropbox
+import threading
 
 from server import server_thread
 
@@ -61,24 +62,28 @@ def after_playing(error,bgm_path):
 async def play_bgm():
     global vc
     ch2=await client.fetch_channel(927206819116490793)
-    await ch2.send("play_bgm")
-    if not vc or not vc.is_connected():
-        await ch2.send("not vc")
-        return
-    if vc.is_playing():
-        await ch2.send("is_playing")
-        return
-    random_bgm=await get_random_bgm()
-    await ch2.send("random_bgm"+random_bgm)
-    if random_bgm:
-        while True:
-            try:
-                vc.play(discord.FFmpegPCMAudio(random_bgm), after=lambda e: after_playing(e, bgm_path))
-                break
-            except discord.errors.ClientException:
-                await ch2.send("error vc.play")
-                await asyncio.sleep(1)
-            
+    while True:
+        await asyncio.sleep(1)
+        if not vc or not vc.is_connected():
+            await ch2.send("not vc")
+            return
+        if vc.is_playing():
+            continue
+        await ch2.send("play_bgm")
+        random_bgm=await get_random_bgm()
+        await ch2.send("random_bgm"+random_bgm)
+        if random_bgm:
+            while True:
+                try:
+                    vc.play(discord.FFmpegPCMAudio(random_bgm), after=lambda e: after_playing(e, bgm_path))
+                    break
+                except discord.errors.ClientException:
+                    await ch2.send("error vc.play")
+                    await asyncio.sleep(1)
+
+async def bgm_loop():
+    asyncio.run(play_bgm())
+        
 
 def plot_expression(expression_str):
     try:
@@ -160,12 +165,6 @@ async def loop():
         xxx=1
     else:
         xxx=0
-    ch2=await client.fetch_channel(927206819116490793)
-    await ch2.send("vc"+str(vc))
-    if vc:
-        await play_bgm()
-    else:
-        await ch2.send("not vc!"+str(ch2.id))
     
 
 @client.event
@@ -210,6 +209,8 @@ async def on_message(message):
             return
         vc=await message.author.voice.channel.connect()
         await message.channel.send(str(message.author.voice.channel) + "に接続したので、!killでたひにます")
+        thread = threading.Thread(target=loop_bgm)
+        thread.start()
         return
     if message.content.startswith('!kill'):
         if vc:
