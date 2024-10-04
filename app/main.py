@@ -75,7 +75,9 @@ async def play_bgm():
         if random_bgm:
             while True:
                 try:
-                    vc.play(discord.FFmpegPCMAudio(random_bgm), after=lambda e: after_playing(e, bgm_path))
+                    if not os.path.exists(random_bgm):
+                        break
+                    vc.play(discord.FFmpegPCMAudio(random_bgm), after=lambda e: after_playing(e, random_bgm))
                     break
                 except discord.errors.ClientException:
                     await ch2.send("error vc.play")
