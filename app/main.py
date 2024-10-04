@@ -164,7 +164,7 @@ async def loop():
     if vc:
         await play_bgm()
     else:
-        await ch2.send("not vc")
+        await ch2.send("not vc!"+str(ch2.id))
     
 
 @client.event
