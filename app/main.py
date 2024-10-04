@@ -26,6 +26,7 @@ from server import server_thread
 dbx_token = os.environ.get("dbx_token")
 
 async def get_random_bgm():
+    global dbx_token
     ch2=await client.fetch_channel(927206819116490793)
     local_path=""
     pa="/kirby_mix"
