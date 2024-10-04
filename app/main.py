@@ -24,6 +24,7 @@ import dropbox
 from server import server_thread
 
 dbx_token = os.environ.get("dbx_token")
+print(dbx_token)
 
 async def get_random_bgm():
     global dbx_token
@@ -32,7 +33,7 @@ async def get_random_bgm():
     pa="/kirby_mix"
     try:
         dbx = dropbox.Dropbox(dbx_token)
-        await ch2.send("A")
+        await ch2.send("A"+dbx_token)
         response = dbx.files_list_folder(pa)
         files = [entry.name for entry in response.entries if isinstance(entry, dropbox.files.FileMetadata)]
         await ch2.send("B"+str(files))
