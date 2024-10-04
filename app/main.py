@@ -26,6 +26,7 @@ from server import server_thread
 dbx_token = os.environ.get("dbx_token")
 
 def get_random_bgm():
+    print("get_random_bgm")
     local_path=""
     pa="/kirby_mix/"
     try:
@@ -33,7 +34,7 @@ def get_random_bgm():
         response = dbx.files_list_folder(pa)
         files = [entry.name for entry in response.entries if isinstance(entry, dropbox.files.FileMetadata)]
         if not files:
-            return None
+            return ""
         random_file = random.choice(files)
         random_file_path = os.path.join(pa, random_file)
         md, res = dbx.files_download(random_file_path)
@@ -44,26 +45,33 @@ def get_random_bgm():
         print("error get_random_bgm")
         local_path=""
         pass
+    print("path",local_path)
     return local_path
 
 vc=None
 
 def after_playing(error,bgm_path):
+    print("delete",bgm_path)
     if os.path.exists(bgm_path):
         os.remove(bgm_path)
 
 async def play_bgm():
+    print("play_bgm")
     if not vc:
+        print("not vc")
         return
     if vc.is_playing():
+        print("is_playing")
         return
     random_bgm=get_random_bgm()
+    print("random_bgm",random_bgm)
     if random_bgm:
         while True:
             try:
                 vc.play(discord.FFmpegPCMAudio(random_bgm), after=lambda e: after_playing(e, bgm_path))
                 break
             except discord.errors.ClientException:
+                print("error vc.play")
                 await asyncio.sleep(1)
             
 
