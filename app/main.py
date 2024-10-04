@@ -56,6 +56,7 @@ def after_playing(error,bgm_path):
         os.remove(bgm_path)
 
 async def play_bgm():
+    global vc
     print("play_bgm")
     if not vc:
         print("not vc")
@@ -132,7 +133,7 @@ mee6_mode=False
 
 @tasks.loop(seconds=20)
 async def loop():
-    global xxx,yyy,groq_history
+    global xxx,yyy,groq_history,vc
     now = datetime.datetime.now(pytz.timezone('Asia/Tokyo'))
     l_day=datetime.datetime(2025,1,18,12,tzinfo=pytz.timezone('Asia/Tokyo'))
     diff = l_day - now
@@ -155,9 +156,11 @@ async def loop():
         xxx=1
     else:
         xxx=0
-
+    print(vc)
     if vc:
         await play_bgm()
+    else:
+        print("not vc")
     
 
 @client.event
