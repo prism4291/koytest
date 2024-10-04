@@ -28,7 +28,7 @@ dbx_token = os.environ.get("dbx_token")
 async def get_random_bgm():
     ch2=await client.fetch_channel(927206819116490793)
     local_path=""
-    pa="/kirby_mix/"
+    pa="/kirby_mix"
     try:
         dbx = dropbox.Dropbox(dbx_token)
         await ch2.send("A")
@@ -40,11 +40,9 @@ async def get_random_bgm():
         random_file = random.choice(files)
         random_file_path = os.path.join(pa, random_file)
         await ch2.send("C"+str(random_file_path))
-        md, res = dbx.files_download(random_file_path)
         local_path = f"./{random_file}"
+        dbx.files_download_to_file(local_path,random_file_path)
         await ch2.send("D"+str(local_path))
-        with open(local_path, "wb") as f:
-            f.write(res.content)
         await ch2.send("E")
     except:
         local_path=""
