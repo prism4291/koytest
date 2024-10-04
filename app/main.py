@@ -46,7 +46,8 @@ async def get_random_bgm():
         dbx.files_download_to_file(local_path,random_file_path)
         await ch2.send("D"+str(local_path))
         await ch2.send("E")
-    except:
+    except Exception as e:
+        await ch2.send(str(e))
         local_path=""
         pass
     return local_path
