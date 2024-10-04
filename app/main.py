@@ -19,6 +19,7 @@ from sympy import *
 import numpy as np
 import matplotlib.pyplot as plt
 import asyncio
+import dropbox
 
 from server import server_thread
 
@@ -40,6 +41,8 @@ def get_random_bgm():
         with open(local_path, "wb") as f:
             f.write(res.content)
     except:
+        print("error get_random_bgm")
+        local_path=""
         pass
     return local_path
 
