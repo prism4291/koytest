@@ -18,8 +18,51 @@ import sympy as sp
 from sympy import *
 import numpy as np
 import matplotlib.pyplot as plt
+import asyncio
 
 from server import server_thread
+
+dbx_token = os.environ.get("dbx_token")
+
+def get_random_bgm():
+    local_path=""
+    pa="/kirby_mix/"
+    try:
+        dbx = dropbox.Dropbox(dbx_token)
+        response = dbx.files_list_folder(pa)
+        files = [entry.name for entry in response.entries if isinstance(entry, dropbox.files.FileMetadata)]
+        if not files:
+            return None
+        random_file = random.choice(files)
+        random_file_path = os.path.join(pa, random_file)
+        md, res = dbx.files_download(random_file_path)
+        local_path = f"./{random_file}"
+        with open(local_path, "wb") as f:
+            f.write(res.content)
+    except:
+        pass
+    return local_path
+
+vc=None
+
+def after_playing(error,bgm_path):
+    if os.path.exists(bgm_path):
+        os.remove(bgm_path)
+
+def play_bgm():
+    if not vc:
+        return
+    if vc.is_playing():
+        return
+    random_bgm=get_random_bgm()
+    if random_bgm:
+        while True:
+            try:
+                vc.play(discord.FFmpegPCMAudio(random_bgm), after=lambda e: after_playing(e, bgm_path))
+                break
+            except discord.errors.ClientException:
+                await asyncio.sleep(1)
+            
 
 def plot_expression(expression_str):
     try:
@@ -101,7 +144,9 @@ async def loop():
         xxx=1
     else:
         xxx=0
-    
+
+    if vc:
+        play_bgm()
     
 
 @client.event
@@ -113,6 +158,7 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
+    global vc
     global groq_system,groq_history,yyy,mee6,mee6_mode
     if message.author == client.user:
         return
@@ -139,6 +185,20 @@ async def on_message(message):
             mee6=[]
             mee6_mode=False
         return
+    if message.content.startswith('!bgm'):
+        if message.author.voice is None:
+            await message.channel.send("ボイスチャンネルに参加してね")
+            return
+        vc=await message.author.voice.channel.connect()
+        await message.channel.send(str(message.author.voice.channel) + "に接続したので、!killでたひにます")
+
+        
+        
+        
+    if message.content.startswith('$kill'):
+        if vc:
+            await vc.disconnect()
+            vc=None
     if message.content.startswith('!ぼたもちストップ'):
         await message.channel.send("stop 5min")
         yyy=0
