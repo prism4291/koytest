@@ -26,7 +26,6 @@ from server import server_thread
 dbx_token = os.environ.get("dbx_token")
 
 def get_random_bgm():
-    print("get_random_bgm")
     local_path=""
     pa="/kirby_mix/"
     try:
@@ -42,37 +41,35 @@ def get_random_bgm():
         with open(local_path, "wb") as f:
             f.write(res.content)
     except:
-        print("error get_random_bgm")
         local_path=""
         pass
-    print("path",local_path)
     return local_path
 
 vc=None
 
 def after_playing(error,bgm_path):
-    print("delete",bgm_path)
     if os.path.exists(bgm_path):
         os.remove(bgm_path)
 
 async def play_bgm():
+    ch=await client.fetch_channel(768398570566320149)
     global vc
-    print("play_bgm")
-    if not vc:
-        print("not vc")
+    await ch.send("play_bgm")
+    if not vc or not vc.is_connected():
+        await ch.send("not vc")
         return
     if vc.is_playing():
-        print("is_playing")
+        await ch.send("is_playing")
         return
     random_bgm=get_random_bgm()
-    print("random_bgm",random_bgm)
+    await ch.send("random_bgm"+random_bgm)
     if random_bgm:
         while True:
             try:
                 vc.play(discord.FFmpegPCMAudio(random_bgm), after=lambda e: after_playing(e, bgm_path))
                 break
             except discord.errors.ClientException:
-                print("error vc.play")
+                await ch.send("error vc.play")
                 await asyncio.sleep(1)
             
 
@@ -156,11 +153,11 @@ async def loop():
         xxx=1
     else:
         xxx=0
-    print(vc)
+    await ch.send("vc"+str(vc))
     if vc:
         await play_bgm()
     else:
-        print("not vc")
+        await ch.send("not vc")
     
 
 @client.event
