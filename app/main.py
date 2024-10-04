@@ -153,6 +153,7 @@ async def loop():
         xxx=1
     else:
         xxx=0
+    ch=await client.fetch_channel(768398570566320149)
     await ch.send("vc"+str(vc))
     if vc:
         await play_bgm()
