@@ -25,21 +25,27 @@ from server import server_thread
 
 dbx_token = os.environ.get("dbx_token")
 
-def get_random_bgm():
+async def get_random_bgm():
+    ch2=await client.fetch_channel(927206819116490793)
     local_path=""
     pa="/kirby_mix/"
     try:
         dbx = dropbox.Dropbox(dbx_token)
+        await ch2.send("A")
         response = dbx.files_list_folder(pa)
         files = [entry.name for entry in response.entries if isinstance(entry, dropbox.files.FileMetadata)]
+        await ch2.send("B"+str(files))
         if not files:
             return ""
         random_file = random.choice(files)
         random_file_path = os.path.join(pa, random_file)
+        await ch2.send("C"+str(random_file_path))
         md, res = dbx.files_download(random_file_path)
         local_path = f"./{random_file}"
+        await ch2.send("D"+str(local_path))
         with open(local_path, "wb") as f:
             f.write(res.content)
+        await ch2.send("E")
     except:
         local_path=""
         pass
@@ -52,24 +58,24 @@ def after_playing(error,bgm_path):
         os.remove(bgm_path)
 
 async def play_bgm():
-    ch=await client.fetch_channel(927206819116490793)
     global vc
-    await ch.send("play_bgm")
+    ch2=await client.fetch_channel(927206819116490793)
+    await ch2.send("play_bgm")
     if not vc or not vc.is_connected():
-        await ch.send("not vc")
+        await ch2.send("not vc")
         return
     if vc.is_playing():
-        await ch.send("is_playing")
+        await ch2.send("is_playing")
         return
-    random_bgm=get_random_bgm()
-    await ch.send("random_bgm"+random_bgm)
+    random_bgm=await get_random_bgm()
+    await ch2.send("random_bgm"+random_bgm)
     if random_bgm:
         while True:
             try:
                 vc.play(discord.FFmpegPCMAudio(random_bgm), after=lambda e: after_playing(e, bgm_path))
                 break
             except discord.errors.ClientException:
-                await ch.send("error vc.play")
+                await ch2.send("error vc.play")
                 await asyncio.sleep(1)
             
 
@@ -153,12 +159,12 @@ async def loop():
         xxx=1
     else:
         xxx=0
-    ch=await client.fetch_channel(927206819116490793)
-    await ch.send("vc"+str(vc))
+    ch2=await client.fetch_channel(927206819116490793)
+    await ch2.send("vc"+str(vc))
     if vc:
         await play_bgm()
     else:
-        await ch.send("not vc")
+        await ch2.send("not vc")
     
 
 @client.event
@@ -203,10 +209,12 @@ async def on_message(message):
             return
         vc=await message.author.voice.channel.connect()
         await message.channel.send(str(message.author.voice.channel) + "に接続したので、!killでたひにます")
+        return
     if message.content.startswith('!kill'):
         if vc:
             await vc.disconnect()
             vc=None
+        return
     if message.content.startswith('!ぼたもちストップ'):
         await message.channel.send("stop 5min")
         yyy=0
