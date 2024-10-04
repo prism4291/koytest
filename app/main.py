@@ -80,9 +80,6 @@ async def play_bgm():
                 except discord.errors.ClientException:
                     await ch2.send("error vc.play")
                     await asyncio.sleep(1)
-
-async def bgm_loop():
-    asyncio.run(play_bgm())
         
 
 def plot_expression(expression_str):
@@ -209,8 +206,7 @@ async def on_message(message):
             return
         vc=await message.author.voice.channel.connect()
         await message.channel.send(str(message.author.voice.channel) + "に接続したので、!killでたひにます")
-        thread = threading.Thread(target=loop_bgm)
-        thread.start()
+        asyncio.create_task(play_bgm())
         return
     if message.content.startswith('!kill'):
         if vc:
