@@ -34,6 +34,9 @@ async def get_random_bgm():
     pa="/kirby_mix"
     try:
         dbx = dropbox.Dropbox(dbx_token)
+    except:
+        return ""
+    try:
         await ch2.send("A"+dbx_token)
         response = dbx.files_list_folder(pa)
         files = [entry.name for entry in response.entries if isinstance(entry, dropbox.files.FileMetadata)]
@@ -54,13 +57,19 @@ async def get_random_bgm():
     return local_path
 
 vc=None
+bgm_path_global=""
 
 def after_playing(error,bgm_path):
-    if os.path.exists(bgm_path):
-        os.remove(bgm_path)
+    global bgm_path_global
+    if bgm_path:
+        if os.path.exists(bgm_path):
+            os.remove(bgm_path)
+    elif bgm_path_global:
+        if os.path.exists(bgm_path_global):
+            os.remove(bgm_path_global)
 
 async def play_bgm():
-    global vc
+    global vc,bgm_path_global
     ch2=await client.fetch_channel(927206819116490793)
     while True:
         await asyncio.sleep(1)
@@ -75,13 +84,19 @@ async def play_bgm():
         if random_bgm:
             while True:
                 try:
+                    if not vc or not vc.is_connected():
+                        await ch2.send("not vc")
+                        return
                     if not os.path.exists(random_bgm):
                         break
+                    bgm_path_global=random_bgm
                     vc.play(discord.FFmpegPCMAudio(random_bgm), after=lambda e: after_playing(e, random_bgm))
                     break
                 except discord.errors.ClientException:
                     await ch2.send("error vc.play")
                     await asyncio.sleep(1)
+        else:
+            await asyncio.sleep(5)
         
 
 def plot_expression(expression_str):
@@ -212,8 +227,14 @@ async def on_message(message):
         return
     if message.content.startswith('!kill'):
         if vc:
-            await vc.disconnect()
-            vc=None
+            try:
+                if vc.is_playing():
+                    vc.stop()
+                await vc.disconnect()
+            except:
+                pass
+            after_playing(None,None)
+            vc = None
         return
     if message.content.startswith('!ぼたもちストップ'):
         await message.channel.send("stop 5min")
