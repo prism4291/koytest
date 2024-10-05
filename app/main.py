@@ -56,13 +56,15 @@ async def get_random_bgm():
     global dbx_token
     ch2=await client.fetch_channel(927206819116490793)
     local_path=""
-    pa="/kirby_mix"
     try:
         dbx = dropbox.Dropbox(dbx_token)
     except:
         return ""
     try:
         await ch2.send("A"+dbx_token)
+        response = dbx.files_list_folder("")
+        folders = [entry.name for entry in response.entries if isinstance(entry, dropbox.files.FolderMetadata)]
+        pa=random.choice(folders)
         response = dbx.files_list_folder(pa)
         files = [entry.name for entry in response.entries if isinstance(entry, dropbox.files.FileMetadata)]
         await ch2.send("B"+str(files)[:1000])
