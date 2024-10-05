@@ -24,8 +24,33 @@ import threading
 
 from server import server_thread
 
-dbx_token = os.environ.get("dbx_token")
-print(dbx_token)
+def get_dbx_token():
+    app_key = os.environ.get("app_key")
+    app_secret = os.environ.get("app_secret")
+    refresh_token = os.environ.get("refresh_token")
+    token_url = "https://api.dropbox.com/oauth2/token"
+    credentials = f"{app_key}:{app_secret}"
+    encoded_credentials = base64.b64encode(credentials.encode("ascii")).decode("ascii")
+    headers = {
+        "Authorization": f"Basic {encoded_credentials}",
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
+    data = {
+        "refresh_token": refresh_token,
+        "grant_type": "refresh_token"
+    }
+    response = requests.post(token_url, headers=headers, data=data)
+    if response.status_code == 200:
+        access_token = response.json().get("access_token")
+        print("Access Token:", access_token)
+        return access_token
+    else:
+        print("Error:", response.status_code, response.text)
+        return None
+
+dbx_token = get_dbx_token()
+
+
 
 async def get_random_bgm():
     global dbx_token
@@ -150,17 +175,24 @@ groq_history=[]
 
 xxx=0
 yyy=0
+zzz=-1
 
 mee6=[]
 mee6_mode=False
 
 @tasks.loop(seconds=20)
 async def loop():
-    global xxx,yyy,groq_history,vc
+    global xxx,yyy,groq_history,vc,zzz,dbx_token
     now = datetime.datetime.now(pytz.timezone('Asia/Tokyo'))
     l_day=datetime.datetime(2025,1,18,12,tzinfo=pytz.timezone('Asia/Tokyo'))
     diff = l_day - now
     diff_days=int(diff.days)
+    if now.minute==0:
+        if zzz==0:
+            dbx_token = get_dbx_token()
+        zzz=1
+    elif zzz==1:
+        zzz=0
     if now.hour == 0 and now.minute == 0:
         if xxx==0:
             ch=await client.fetch_channel(768398570566320149)
