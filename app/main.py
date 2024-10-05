@@ -65,7 +65,7 @@ async def get_random_bgm():
         response2 = dbx.files_list_folder("")
         folders = [entry.name for entry in response2.entries if isinstance(entry, dropbox.files.FolderMetadata)]
         await ch2.send("B"+str(folders)[:1000])
-        pa=random.choice(folders)
+        pa="/"+random.choice(folders)+"/"
         response = dbx.files_list_folder(pa)
         files = [entry.name for entry in response.entries if isinstance(entry, dropbox.files.FileMetadata)]
         await ch2.send("B"+str(files)[:1000])
