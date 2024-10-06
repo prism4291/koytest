@@ -10,5 +10,4 @@ networkx
 matplotlib
 sympy
 numpy
-requests
 dropbox
