@@ -346,7 +346,7 @@ async def on_message(message):
             
             if len(groq_history)>20:
                 groq_history=groq_history[-20:]
-            next_messages=[groq_system]
+            next_messages=[]
             next_messages.extend(groq_history)
             if img_64:
                 next_chat={
