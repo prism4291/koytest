@@ -235,7 +235,7 @@ async def on_message(message):
         if len(mee6)==5:
             mee6_str="\n".join(mee6)
             next_messages=[{"role": "system","content": "In the following conversation, only the Japanese language is allowed.\nあなたは日本の昔話の小説家です。日本語で答えてください。"},{"role": "user", "content":"あらすじを考えました。物語を日本語で書いてください。"+mee6_str}]
-            response = groq_client.chat.completions.create(model="gemma2-9b-it",
+            response = groq_client.chat.completions.create(model="llama-3.2-11b-text-preview",
                                             messages=next_messages,
                                             max_tokens=1000,
                                             temperature=1.2)
@@ -313,7 +313,7 @@ async def on_message(message):
         next_messages=[{"role": "system","content": "In the following conversation, only the Japanese language is allowed."}]
         next_chat={"role": "user", "content": "以下の発言を\""+character_name+"\"の発言に直してください。\n「"+character_sentence+"」"}
         next_messages.append(next_chat)
-        response = groq_client.chat.completions.create(model="llama-3.1-70b-versatile",
+        response = groq_client.chat.completions.create(model="llama-3.2-11b-text-preview",
                                             messages=next_messages,
                                             max_tokens=720,
                                             temperature=1.05)
@@ -346,15 +346,15 @@ async def on_message(message):
             
             if len(groq_history)>20:
                 groq_history=groq_history[-20:]
-            next_messages=[]
-            next_messages.extend(groq_history)
             if img_64:
+                next_messages=[]
+                #next_messages.extend(groq_history)
                 next_chat={
                     "role": "user",
                     "content": [
                         {
                             "type": "text",
-                            "text": "「"+str(message.author)+"」さん:「"+message.content+"」"
+                            "text": "画像の説明をし、応答をしてください。「"+str(message.author)+"」さん:「"+message.content+"」"
                         },
                         {
                             "type": "image_url",
@@ -378,18 +378,19 @@ async def on_message(message):
                 groq_history.append({"role": "user", "content": "「"+str(message.author)+"」さん:「"+message.content+"」"})
                 groq_history.append({"role": "assistant","content": response.choices[0].message.content})
                 return
-            if not message.content.startswith('!ぼたもち'):
-                return
-            
+            #if not message.content.startswith('!ぼたもち'):
+            #    return
+            next_messages=[groq_system]
+            next_messages.extend(groq_history)
             next_chat={"role": "user", "content": "「"+str(message.author)+"」さん:「"+message.content+"」"}
             next_messages.append(next_chat)
-            response = groq_client.chat.completions.create(model="gemma2-9b-it",
+            response = groq_client.chat.completions.create(model="llama-3.2-11b-text-preview",
                                             messages=next_messages,
                                             max_tokens=360,
                                             temperature=1.2)
+            await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
             groq_history.append(next_chat)
             groq_history.append({"role": "assistant","content": response.choices[0].message.content})
-            await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
             #ch=await client.fetch_channel(1252576904301510656)
             #await ch.send(response.choices[0].message.content)
             #ch=await client.fetch_channel(1252624652875075697)
