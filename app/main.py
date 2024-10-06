@@ -365,7 +365,7 @@ async def on_message(message):
                 response = groq_client.chat.completions.create(
                     model="llama-3.2-11b-vision-preview",
                     messages=[next_chat],
-                    temperature=0.5,
+                    temperature=0.9,
                     max_tokens=512,
                 )
                 await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
@@ -389,31 +389,20 @@ async def on_message(message):
                 response = groq_client.chat.completions.create(
                     model="llama-3.2-11b-vision-preview",
                     messages=[next_chat],
-                    temperature=0.5,
+                    temperature=0.9,
                     max_tokens=512,
                 )
                 await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
                 groq_history.append({"role": "user", "content": "画像には何か書かれていますか？"})
                 groq_history.append({"role": "assistant","content": response.choices[0].message.content})
-                next_chat={
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": "「"+str(message.author)+"」さん:「"+message.content+"」"
-                        },
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{img_64}",
-                            },
-                        }
-                    ]
-                }
+                next_messages=[groq_system]
+                next_messages.extend(groq_history)
+                next_chat={"role": "user", "content": "「"+str(message.author)+"」さん:「"+message.content+"」"}
+                next_messages.append(next_chat)
                 response = groq_client.chat.completions.create(
-                    model="llama-3.2-11b-vision-preview",
-                    messages=[next_chat],
-                    temperature=0.5,
+                    model="llama-3.2-11b-text-preview",
+                    messages=next_messages,
+                    temperature=0.9,
                     max_tokens=512,
                 )
                 await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
