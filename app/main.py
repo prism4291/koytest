@@ -370,7 +370,7 @@ async def on_message(message):
                     max_tokens=512,
                 )
                 todo_message+=response.choices[0].message.content
-                await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
+                #await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
                 #groq_history.append({"role": "user", "content": "画像には何が見えますか？"})
                 #groq_history.append({"role": "assistant","content": response.choices[0].message.content})
                 next_chat={
@@ -392,24 +392,52 @@ async def on_message(message):
                     model="llama-3.2-11b-vision-preview",
                     messages=[next_chat],
                     temperature=0.9,
-                    max_tokens=512,
+                    max_tokens=360,
                 )
                 todo_message+=response.choices[0].message.content
-                await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
+                #await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
                 #groq_history.append({"role": "user", "content": "画像には何か書かれていますか？"})
                 #groq_history.append({"role": "assistant","content": response.choices[0].message.content})
-                next_messages=[groq_system]
-                next_messages.extend(groq_history)
-                next_chat={"role": "user", "content": todo_message+"\n\n"+message.content}
-                next_messages.append(next_chat)
+                #next_messages=[groq_system]
+                #next_messages.extend(groq_history)
+                next_chat={
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "何を伝えたいのかまとめてください。"+message.content
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{img_64}",
+                            },
+                        }
+                    ]
+                }
+                #next_messages.append(next_chat)
+                response = groq_client.chat.completions.create(
+                    model="llama-3.2-11b-vision-preview",
+                    messages=[next_chat],
+                    temperature=1,
+                    max_tokens=360,
+                )
+                todo_message+=response.choices[0].message.content
+                #next_messages=[groq_system]
+                #next_messages.extend(groq_history)
+                next_chat={
+                    "role": "user",
+                    "content": "以下の文章を整形してください。\n\n"+todo_message
+                }
+                #next_messages.append(next_chat)
                 response = groq_client.chat.completions.create(
                     model="llama-3.2-11b-text-preview",
-                    messages=next_messages,
-                    temperature=1.2,
-                    max_tokens=512,
+                    messages=[next_chat],
+                    temperature=1.05,
+                    max_tokens=1024,
                 )
                 await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
-                groq_history.append({"role": "user", "content": todo_message+"\n\n"+message.content})
+                groq_history.append({"role": "user", "content": "画像を送信しました。"+message.content})
                 groq_history.append({"role": "assistant","content": response.choices[0].message.content})
                 return
             #if not message.content.startswith('!ぼたもち'):
