@@ -42,10 +42,8 @@ def get_dbx_token():
     response = requests.post(token_url, headers=headers, data=data)
     if response.status_code == 200:
         access_token = response.json().get("access_token")
-        print("Access Token:", access_token)
         return access_token
     else:
-        print("Error:", response.status_code, response.text)
         return None
 
 dbx_token = get_dbx_token()
@@ -54,34 +52,34 @@ dbx_token = get_dbx_token()
 
 async def get_random_bgm():
     global dbx_token
-    ch2=await client.fetch_channel(927206819116490793)
+    #ch2=await client.fetch_channel(927206819116490793)
     local_path=""
     try:
         dbx = dropbox.Dropbox(dbx_token)
     except:
         return ""
     try:
-        await ch2.send("A"+dbx_token)
+        #await ch2.send("A"+dbx_token)
         response2 = dbx.files_list_folder("")
         folders = [entry.name for entry in response2.entries if isinstance(entry, dropbox.files.FolderMetadata)]
-        await ch2.send("B"+str(folders)[:1000])
+        #await ch2.send("B"+str(folders)[:1000])
         pa="/"+random.choice(folders)+"/"
         response = dbx.files_list_folder(pa)
         files = [entry.name for entry in response.entries if isinstance(entry, dropbox.files.FileMetadata)]
-        await ch2.send("B"+str(files)[:1000])
+        #await ch2.send("B"+str(files)[:1000])
         if not files:
             return ""
         random_file = random.choice(files)
         random_file_path = os.path.join(pa, random_file)
-        await ch2.send("C"+str(random_file_path))
+        #await ch2.send("C"+str(random_file_path))
         local_path = f"./{random_file}"
         dbx.files_download_to_file(local_path,random_file_path)
-        await ch2.send("D"+str(local_path))
-        await ch2.send("E")
+        #await ch2.send("D"+str(local_path))
+        #await ch2.send("E")
     except Exception as e:
-        await ch2.send(str(e))
+        #await ch2.send(str(e))
         local_path=""
-        pass
+        #pass
     return local_path
 
 vc=None
@@ -98,22 +96,22 @@ def after_playing(error,bgm_path):
 
 async def play_bgm():
     global vc,bgm_path_global
-    ch2=await client.fetch_channel(927206819116490793)
+    #ch2=await client.fetch_channel(927206819116490793)
     while True:
         await asyncio.sleep(1)
         if not vc or not vc.is_connected():
-            await ch2.send("not vc")
+            #await ch2.send("not vc")
             return
         if vc.is_playing():
             continue
-        await ch2.send("play_bgm")
+        #await ch2.send("play_bgm")
         random_bgm=await get_random_bgm()
-        await ch2.send("random_bgm"+random_bgm)
+        #await ch2.send("random_bgm"+random_bgm)
         if random_bgm:
             while True:
                 try:
                     if not vc or not vc.is_connected():
-                        await ch2.send("not vc")
+                        #await ch2.send("not vc")
                         return
                     if not os.path.exists(random_bgm):
                         break
@@ -121,7 +119,7 @@ async def play_bgm():
                     vc.play(discord.FFmpegPCMAudio(random_bgm), after=lambda e: after_playing(e, random_bgm))
                     break
                 except discord.errors.ClientException:
-                    await ch2.send("error vc.play")
+                    #await ch2.send("error vc.play")
                     await asyncio.sleep(1)
         else:
             await asyncio.sleep(5)
@@ -270,6 +268,7 @@ async def on_message(message):
                 pass
             after_playing(None,None)
             vc = None
+            await message.channel.send("無限bgmはたひにました!")
         return
     if message.content.startswith('!ぼたもちストップ'):
         await message.channel.send("stop 5min")
@@ -320,8 +319,14 @@ async def on_message(message):
                                             temperature=1.05)
         await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
         return
-    """
-    if message.content.startswith('!ぼたもち画像'):
+    if message.content.startswith('!func'):
+        buf = plot_expression(message.content[5:].strip())
+        if buf:
+            await message.channel.send(file=discord.File(buf, 'plot.png'))
+        else:
+            await message.channel.send("エラー")
+        return
+    if message.content.startswith('!ぼたもち') or message.channel.id==1211621332643749918:
         img_64=""
         try:
             if message.attachments:
@@ -332,37 +337,51 @@ async def on_message(message):
                         break
         except:
             img_64=""
-        if img_64=="":
-            await message.channel.send("画像を送ってください")
-            return
-        next_messages=[{"role": "system","content": "In the following conversation, only the Japanese language is allowed."}]
-        next_chat={"role": "user", "content":message.content[5:],"image":img_64}
-        next_messages.append(next_chat)
-        response = groq_client.chat.completions.create(model="llava-v1.5-7b-4096-preview",
-                                            messages=next_messages,
-                                            max_tokens=720,
-                                            temperature=1.05)
-        await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
-        return
-    """
-    if message.content.startswith('!func'):
-        buf = plot_expression(message.content[5:].strip())
-        if buf:
-            await message.channel.send(file=discord.File(buf, 'plot.png'))
-        else:
-            await message.channel.send("エラー")
-        return
-    if message.content.startswith('!ぼたもち') or message.channel.id==1211621332643749918:
+                
         try:
             if yyy<0:
                 yyy+=1
                 await message.channel.send("rate limit")
                 return
-            next_chat={"role": "user", "content": "「"+str(message.author)+"」さん:「"+message.content+"」"}
+            
             if len(groq_history)>20:
                 groq_history=groq_history[-20:]
             next_messages=[groq_system]
             next_messages.extend(groq_history)
+            if img_64:
+                next_chat={
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "「"+str(message.author)+"」さん:「"+message.content+"」"
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{img_64}",
+                            },
+                        }
+                    ]
+                }
+                next_messages.append(next_chat)
+                response = groq_client.chat.completions.create(
+                    model="llama-3.2-11b-vision-preview",
+                    messages=next_messages,
+                    temperature=1,
+                    max_tokens=1024,
+                    top_p=1,
+                    stream=False,
+                    stop=None,
+                )
+                await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
+                groq_history.append({"role": "user", "content": "「"+str(message.author)+"」さん:「"+message.content+"」"})
+                groq_history.append({"role": "assistant","content": response.choices[0].message.content})
+                return
+            if not message.content.startswith('!ぼたもち'):
+                return
+            
+            next_chat={"role": "user", "content": "「"+str(message.author)+"」さん:「"+message.content+"」"}
             next_messages.append(next_chat)
             response = groq_client.chat.completions.create(model="gemma2-9b-it",
                                             messages=next_messages,
@@ -370,8 +389,7 @@ async def on_message(message):
                                             temperature=1.2)
             groq_history.append(next_chat)
             groq_history.append({"role": "assistant","content": response.choices[0].message.content})
-            if message.content.startswith('!ぼたもち'):
-                await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
+            await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
             #ch=await client.fetch_channel(1252576904301510656)
             #await ch.send(response.choices[0].message.content)
             #ch=await client.fetch_channel(1252624652875075697)
