@@ -366,8 +366,7 @@ async def on_message(message):
                 response = groq_client.chat.completions.create(
                     model="llama-3.2-11b-vision-preview",
                     messages=[next_chat],
-                    temperature=0.9,
-                    max_tokens=512,
+                    max_tokens=480,
                 )
                 todo_message+=response.choices[0].message.content
                 #await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
@@ -391,8 +390,7 @@ async def on_message(message):
                 response = groq_client.chat.completions.create(
                     model="llama-3.2-11b-vision-preview",
                     messages=[next_chat],
-                    temperature=0.9,
-                    max_tokens=360,
+                    max_tokens=240,
                 )
                 todo_message+=response.choices[0].message.content
                 #await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
@@ -419,21 +417,20 @@ async def on_message(message):
                 response = groq_client.chat.completions.create(
                     model="llama-3.2-11b-vision-preview",
                     messages=[next_chat],
-                    temperature=1,
-                    max_tokens=360,
+                    max_tokens=240,
                 )
                 todo_message+=response.choices[0].message.content
                 #next_messages=[groq_system]
                 #next_messages.extend(groq_history)
                 next_chat={
                     "role": "user",
-                    "content": "以下の文章を整形してください。\n\n"+todo_message
+                    "content": "以下の文章を整形してください。\n(start)\n"+todo_message+"\n(end)"
                 }
                 #next_messages.append(next_chat)
                 response = groq_client.chat.completions.create(
                     model="llama-3.2-11b-text-preview",
                     messages=[next_chat],
-                    temperature=1.05,
+                    temperature=0.5,
                     max_tokens=1024,
                 )
                 await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
@@ -449,7 +446,7 @@ async def on_message(message):
             response = groq_client.chat.completions.create(model="llama-3.2-11b-text-preview",
                                             messages=next_messages,
                                             max_tokens=360,
-                                            temperature=1.2)
+                                            temperature=0.85)
             await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
             groq_history.append(next_chat)
             groq_history.append({"role": "assistant","content": response.choices[0].message.content})
