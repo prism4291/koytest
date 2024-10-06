@@ -347,14 +347,12 @@ async def on_message(message):
             if len(groq_history)>20:
                 groq_history=groq_history[-20:]
             if img_64:
-                next_messages=[]
-                #next_messages.extend(groq_history)
                 next_chat={
                     "role": "user",
                     "content": [
                         {
                             "type": "text",
-                            "text": "画像の説明をし、応答をしてください。「"+str(message.author)+"」さん:「"+message.content+"」"
+                            "text": "画像には何が見えますか？"
                         },
                         {
                             "type": "image_url",
@@ -364,15 +362,59 @@ async def on_message(message):
                         }
                     ]
                 }
-                next_messages.append(next_chat)
                 response = groq_client.chat.completions.create(
                     model="llama-3.2-11b-vision-preview",
-                    messages=next_messages,
-                    temperature=1,
-                    max_tokens=1024,
-                    top_p=1,
-                    stream=False,
-                    stop=None,
+                    messages=[next_chat],
+                    temperature=0.5,
+                    max_tokens=512,
+                )
+                await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
+                groq_history.append({"role": "user", "content": "画像には何が見えますか？"})
+                groq_history.append({"role": "assistant","content": response.choices[0].message.content})
+                next_chat={
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "画像には何か書かれていますか？"
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{img_64}",
+                            },
+                        }
+                    ]
+                }
+                response = groq_client.chat.completions.create(
+                    model="llama-3.2-11b-vision-preview",
+                    messages=[next_chat],
+                    temperature=0.5,
+                    max_tokens=512,
+                )
+                await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
+                groq_history.append({"role": "user", "content": "画像には何か書かれていますか？"})
+                groq_history.append({"role": "assistant","content": response.choices[0].message.content})
+                next_chat={
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "「"+str(message.author)+"」さん:「"+message.content+"」"
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{img_64}",
+                            },
+                        }
+                    ]
+                }
+                response = groq_client.chat.completions.create(
+                    model="llama-3.2-11b-vision-preview",
+                    messages=[next_chat],
+                    temperature=0.5,
+                    max_tokens=512,
                 )
                 await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
                 groq_history.append({"role": "user", "content": "「"+str(message.author)+"」さん:「"+message.content+"」"})
