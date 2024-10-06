@@ -371,8 +371,8 @@ async def on_message(message):
                 )
                 todo_message+=response.choices[0].message.content
                 await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
-                groq_history.append({"role": "user", "content": "画像には何が見えますか？"})
-                groq_history.append({"role": "assistant","content": response.choices[0].message.content})
+                #groq_history.append({"role": "user", "content": "画像には何が見えますか？"})
+                #groq_history.append({"role": "assistant","content": response.choices[0].message.content})
                 next_chat={
                     "role": "user",
                     "content": [
@@ -396,8 +396,8 @@ async def on_message(message):
                 )
                 todo_message+=response.choices[0].message.content
                 await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
-                groq_history.append({"role": "user", "content": "画像には何か書かれていますか？"})
-                groq_history.append({"role": "assistant","content": response.choices[0].message.content})
+                #groq_history.append({"role": "user", "content": "画像には何か書かれていますか？"})
+                #groq_history.append({"role": "assistant","content": response.choices[0].message.content})
                 next_messages=[groq_system]
                 next_messages.extend(groq_history)
                 next_chat={"role": "user", "content": todo_message+"\n\n"+message.content}
