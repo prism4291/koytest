@@ -347,6 +347,7 @@ async def on_message(message):
             if len(groq_history)>20:
                 groq_history=groq_history[-20:]
             if img_64:
+                todo_message=""
                 next_chat={
                     "role": "user",
                     "content": [
@@ -368,6 +369,7 @@ async def on_message(message):
                     temperature=0.9,
                     max_tokens=512,
                 )
+                todo_message+=response.choices[0].message.content
                 await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
                 groq_history.append({"role": "user", "content": "画像には何が見えますか？"})
                 groq_history.append({"role": "assistant","content": response.choices[0].message.content})
@@ -392,21 +394,22 @@ async def on_message(message):
                     temperature=0.9,
                     max_tokens=512,
                 )
+                todo_message+=response.choices[0].message.content
                 await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
                 groq_history.append({"role": "user", "content": "画像には何か書かれていますか？"})
                 groq_history.append({"role": "assistant","content": response.choices[0].message.content})
                 next_messages=[groq_system]
                 next_messages.extend(groq_history)
-                next_chat={"role": "user", "content": "「"+str(message.author)+"」さん:「"+message.content+"」"}
+                next_chat={"role": "user", "content": todo_message+"\n\n"+message.content}
                 next_messages.append(next_chat)
                 response = groq_client.chat.completions.create(
                     model="llama-3.2-11b-text-preview",
                     messages=next_messages,
-                    temperature=0.9,
+                    temperature=1.2,
                     max_tokens=512,
                 )
                 await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
-                groq_history.append({"role": "user", "content": "「"+str(message.author)+"」さん:「"+message.content+"」"})
+                groq_history.append({"role": "user", "content": todo_message+"\n\n"+message.content})
                 groq_history.append({"role": "assistant","content": response.choices[0].message.content})
                 return
             #if not message.content.startswith('!ぼたもち'):
