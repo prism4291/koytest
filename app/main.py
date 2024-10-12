@@ -218,7 +218,7 @@ intents.voice_states = True
 client = discord.Client(intents=intents)
 
 groq_client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
-groq_system={"role": "system","content":META_PROMPT+"In the following conversation, only the Japanese language is allowed.あなたはキャラクター「ぼたもち」役です。"}
+groq_system={"role": "system","content":META_PROMPT+"\nIn the following conversation, only the Japanese language is allowed.\nあなたはキャラクター「ぼたもち」役です。"}
 groq_history=[]
 
 xxx=0
@@ -492,7 +492,7 @@ async def on_message(message):
             next_messages.append(next_chat)
             response = groq_client.chat.completions.create(model="llama-3.2-11b-text-preview",
                                             messages=next_messages,
-                                            max_tokens=360,
+                                            max_tokens=720,
                                             temperature=0.85)
             await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
             groq_history.append(next_chat)
