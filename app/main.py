@@ -229,7 +229,7 @@ intents.voice_states = True
 client = discord.Client(intents=intents)
 
 groq_client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
-groq_system={"role": "system","content":META_PROMPT+"\nIn the following conversation, only the Japanese language is allowed.\nあなたはキャラクター「ぼたもち」役です。"}
+groq_system={"role": "system","content":"\nIn the following conversation, only the Japanese language is allowed.\nあなたはキャラクター「ぼたもち」役です。"}
 groq_history=[]
 
 xxx=0
@@ -401,9 +401,9 @@ async def on_message(message):
                     max_tokens=1024,
                 )
         await message.channel.send(response.choices[0].message.content)
-        match = re.search(r'r"([^"]*)"', str(response.choices[0].message.content))
-        if match:
-            extracted_latex = match.group(1)
+        match_list = re.findall(r'r"([^"]*)"', str(response.choices[0].message.content))
+        if len(match_list)>0:
+            extracted_latex = match_list[-1]
             try:
                 buf=latex_to_image(extracted_latex.strip())
             except:
