@@ -1,3 +1,4 @@
+from sympy import *
 import discord
 from discord.ext import tasks
 import dotenv
@@ -15,7 +16,6 @@ import graphillion.tutorial as tl
 import base64
 import io
 import sympy as sp
-from sympy import *
 import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
