@@ -394,16 +394,16 @@ async def on_message(message):
                         },
                         {
                             "role": "user",
-                            "content": 'Convert the following mathematical expression to LaTeX: r"'+message.content[6:].strip()+'" Please provide the output as a raw string.',
+                            "content": 'Convert the following mathematical expression to LaTeX: r"'+message.content[6:].strip()+'". Please provide the output as a raw string.',
                         }
                     ],
                     temperature=0.85,
                     max_tokens=1024,
                 )
         await message.channel.send(response.choices[0].message.content)
-        match = re.search(r'r"([^"]*)"', response.choices[0].message.content)
+        match = re.search(r'r"([^"]*)"', str(response.choices[0].message.content))
         if match:
-            extracted_latex = match.group(0)
+            extracted_latex = match.group(1)
             try:
                 buf=latex_to_image(extracted_latex.strip())
             except:
