@@ -388,11 +388,44 @@ async def on_message(message):
         try:
             buf=latex_to_image(message.content[6:].strip())
         except:
-            await message.channel.send("エラー1")
+            await message.channel.send("エラー1 cannot create")
         if buf:
             await message.channel.send(file=discord.File(buf, 'latex.png'))
+            return
         else:
-            await message.channel.send("エラー2")
+            await message.channel.send("エラー2 empty")
+        response = groq_client.chat.completions.create(
+                    model="llama-3.2-11b-text-preview",
+                    messages=[
+                        {
+                            "role": "system",
+                            "content": 'You are a helpful assistant that converts mathematical expressions to LaTeX format. Please return the LaTeX output in a raw string format (e.g., r"...").'
+                        },
+                        {
+                            "role": "user",
+                            "content": 'Convert the following mathematical expression to LaTeX: r"'+message.content[6:].strip()+'" Please provide the output as a raw string.',
+                        }
+                    ],
+                    temperature=0.85,
+                    max_tokens=1024,
+                )
+        await message.channel.send(response.choices[0].message.content)
+        match = re.search(r'r"([^"]*)"', response.choices[0].message.content)
+        if match:
+            extracted_latex = match.group(0)
+            try:
+                buf=latex_to_image(extracted_latex.strip())
+            except:
+                await message.channel.send("エラー3 cannot create")
+                return
+            if buf:
+                await message.channel.send(file=discord.File(buf, 'latex.png'))
+                return
+            else:
+                await message.channel.send("エラー4 empty")
+                return
+        else:
+            await message.channel.send("エラー5 cannot find latex")
         return
     if message.content.startswith('!ぼたもち') or message.channel.id==1211621332643749918:
         img_64=""
