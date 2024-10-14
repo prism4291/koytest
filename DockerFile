@@ -5,12 +5,6 @@ WORKDIR /bot
 RUN apt-get update && apt-get -y install \
     locales \
     ffmpeg \
-    texlive-latex-base \
-    texlive-fonts-recommended \
-    texlive-fonts-extra \
-    texlive-latex-extra \
-    dvipng \
-    cm-super \
     && apt-get -y upgrade && \
     localedef -f UTF-8 -i ja_JP ja_JP.UTF-8 && \
     apt-get clean
