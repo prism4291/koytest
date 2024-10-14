@@ -18,11 +18,22 @@ import sympy as sp
 from sympy import *
 import numpy as np
 import matplotlib.pyplot as plt
+from PIL import Image
 import asyncio
 import dropbox
 import threading
 
 from server import server_thread
+
+def latex_to_image(latex):
+    fig, ax = plt.subplots(figsize=(0.01, 0.01))
+    ax.text(0.5, 0.5, f"${latex}$", fontsize=16, ha='center', va='center')
+    ax.axis('off')
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.1, dpi=300)
+    plt.close(fig)
+    buf.seek(0)
+    return buf
 
 def get_dbx_token():
     app_key = os.environ.get("app_key")
@@ -372,6 +383,16 @@ async def on_message(message):
             await message.channel.send(file=discord.File(buf, 'plot.png'))
         else:
             await message.channel.send("エラー")
+        return
+    if message.content.startswith('!latex'):
+        try:
+            buf=latex_to_image(message.content[6:].strip())
+        except:
+            await message.channel.send("エラー1")
+        if buf:
+            await message.channel.send(file=discord.File(buf, 'latex.png'))
+        else:
+            await message.channel.send("エラー2")
         return
     if message.content.startswith('!ぼたもち') or message.channel.id==1211621332643749918:
         img_64=""
