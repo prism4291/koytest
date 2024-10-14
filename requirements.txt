@@ -11,3 +11,4 @@ matplotlib
 sympy
 numpy
 dropbox
+pillow
