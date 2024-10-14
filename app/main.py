@@ -405,7 +405,7 @@ async def on_message(message):
         if len(match_list)>0:
             extracted_latex = match_list[-1]
             try:
-                buf=latex_to_image(extracted_latex.strip())
+                buf=latex_to_image(extracted_latex.strip().strip("$"))
             except:
                 await message.channel.send("エラー1 cannot create")
                 return
