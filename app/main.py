@@ -384,17 +384,17 @@ async def on_message(message):
         else:
             await message.channel.send("エラー")
         return
-    if message.content.startswith('!latex'):
+    if message.content.startswith('!tex'):
         response = groq_client.chat.completions.create(
-                    model="llama-3.2-11b-text-preview",
+                    model="llama-3.1-8b-instant",
                     messages=[
                         {
                             "role": "system",
-                            "content": 'You are a helpful assistant that converts mathematical expressions to LaTeX format. Please return the LaTeX output in a raw string format (e.g., r"...").'
+                            "content": 'You are a helpful assistant that converts mathematical expressions to TeX format. Please return the TeX output in a raw string format (e.g., r"..." use double quotes).'
                         },
                         {
                             "role": "user",
-                            "content": 'Convert the following mathematical expression to LaTeX: r"'+message.content[6:].strip()+'". Please provide the output as a raw string.',
+                            "content": 'Convert the following mathematical expression to TeX: r"'+message.content[6:].strip()+'". Please provide the output as a raw string.',
                         }
                     ],
                     temperature=0.85,
@@ -402,6 +402,8 @@ async def on_message(message):
                 )
         await message.channel.send(response.choices[0].message.content)
         match_list = re.findall(r'r"([^"]*)"', str(response.choices[0].message.content))
+        if len(match_list)==0:
+            match_list = re.findall(r"r'([^']*)'", str(response.choices[0].message.content))
         if len(match_list)>0:
             extracted_latex = match_list[-1]
             try:
@@ -410,13 +412,13 @@ async def on_message(message):
                 await message.channel.send("エラー1 cannot create")
                 return
             if buf:
-                await message.channel.send(file=discord.File(buf, 'latex.png'))
+                await message.channel.send(file=discord.File(buf, 'tex.png'))
                 return
             else:
                 await message.channel.send("エラー2 empty")
                 return
         else:
-            await message.channel.send("エラー3 cannot find latex もう一度試してみて")
+            await message.channel.send("エラー3 cannot find tex もう一度試してみて")
         return
     if message.content.startswith('!ぼたもち') or message.channel.id==1211621332643749918:
         img_64=""
