@@ -293,7 +293,7 @@ async def on_message(message):
         if len(mee6)==5:
             mee6_str="\n".join(mee6)
             next_messages=[{"role": "system","content": "In the following conversation, only the Japanese language is allowed.\nあなたは日本の昔話の小説家です。日本語で答えてください。"},{"role": "user", "content":"あらすじを考えました。物語を日本語で書いてください。"+mee6_str}]
-            response = groq_client.chat.completions.create(model="llama-3.2-11b-text-preview",
+            response = groq_client.chat.completions.create(model="llama-3.1-8b-instant",
                                             messages=next_messages,
                                             max_tokens=1000,
                                             temperature=1.2)
@@ -371,7 +371,7 @@ async def on_message(message):
         next_messages=[{"role": "system","content": "In the following conversation, only the Japanese language is allowed."}]
         next_chat={"role": "user", "content": "以下の発言を\""+character_name+"\"の発言に直してください。\n「"+character_sentence+"」"}
         next_messages.append(next_chat)
-        response = groq_client.chat.completions.create(model="llama-3.2-11b-text-preview",
+        response = groq_client.chat.completions.create(model="llama-3.1-8b-instant",
                                             messages=next_messages,
                                             max_tokens=720,
                                             temperature=1.05)
@@ -520,7 +520,7 @@ async def on_message(message):
                 }
                 #next_messages.append(next_chat)
                 response = groq_client.chat.completions.create(
-                    model="llama-3.2-11b-text-preview",
+                    model="llama-3.1-8b-instant",
                     messages=[next_chat],
                     temperature=0.5,
                     max_tokens=1024,
@@ -535,7 +535,7 @@ async def on_message(message):
             next_messages.extend(groq_history)
             next_chat={"role": "user", "content": "「"+str(message.author)+"」さん:「"+message.content+"」"}
             next_messages.append(next_chat)
-            response = groq_client.chat.completions.create(model="llama-3.2-11b-text-preview",
+            response = groq_client.chat.completions.create(model="llama-3.1-8b-instant",
                                             messages=next_messages,
                                             max_tokens=720,
                                             temperature=0.85)
