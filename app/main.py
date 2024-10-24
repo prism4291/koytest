@@ -420,7 +420,7 @@ async def on_message(message):
         else:
             await message.channel.send("エラー3 cannot find tex もう一度試してみて")
         return
-    if message.content.startswith('!ぼたもち') or message.channel.id==1211621332643749918:
+    if message.content.startswith('!ぼたもち'):# or message.channel.id==1211621332643749918:
         img_64=""
         try:
             if message.attachments:
