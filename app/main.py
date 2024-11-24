@@ -444,8 +444,8 @@ async def on_message(message):
         latexs=response_text.split("$$")
         latex_text=""
         for i in range(1,len(latexs),2):
-            latex_text+=str((i+1)//2)+". "+latexs[i].strip("$")+"\n
-            latexs[i]="{式"+str((i+1)//2)+"}"
+            latex_text+="["+str((i+1)//2)+"] "+latexs[i].strip("$")+"\n"
+            latexs[i]="[式"+str((i+1)//2)+"]"
         main_text="".join(latexs)
         lines=("-# "+main_text.replace("\n","\n-# ")).split("\n")
         t=""
