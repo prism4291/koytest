@@ -22,6 +22,7 @@ from PIL import Image
 import asyncio
 import dropbox
 import threading
+import google.generativeai as genai
 
 from server import server_thread
 
@@ -232,6 +233,11 @@ groq_client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 groq_system={"role": "system","content":"\nIn the following conversation, only the Japanese language is allowed.\nあなたはキャラクター「ぼたもち」役です。"}
 groq_history=[]
 
+gemini_key = os.environ.get("gemini_key")
+genai.configure(api_key=gemini_key)
+gemini_model = genai.GenerativeModel("gemini-exp-1121")
+
+
 xxx=0
 yyy=0
 zzz=-1
@@ -419,6 +425,10 @@ async def on_message(message):
                 return
         else:
             await message.channel.send("エラー3 cannot find tex もう一度試してみて")
+        return
+    if message.content.startswith('!ジェミニストーム'):
+        response=gemini_model.generate_content(message.content[9:])
+        await message.channel.send(response.text)
         return
     if message.content.startswith('!ぼたもち'):# or message.channel.id==1211621332643749918:
         img_64=""
