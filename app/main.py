@@ -455,7 +455,7 @@ async def on_message(message):
                 await message.channel.send(t)
             if len(latexs)>i+1:
                 try:
-                    buf=latex_to_image(latexs[i+1].strip("$"))
+                    buf=latex_to_image(latexs[i+1].strip("$").strip().strip("\n").strip())
                 except:
                     await message.channel.send(latexs[i+1].strip("$"))
                     #return
