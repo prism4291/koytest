@@ -434,14 +434,14 @@ async def on_message(message):
             if len(t)+len(l)>=2000:
                 await message.channel.send(t)
                 t=""
-            t+=l
+            t+=l+"\n"
         await message.channel.send(t)
         return
     if message.content.startswith('!math'):
         math_prompt="数学の問題を出すので解説を作成してください。数式はlatex形式で$$で囲ってください。\n"
         response=gemini_model.generate_content(math_prompt+message.content[5:])
         response_text=response.text.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("$$","$")
-        latexs=response_text.split("$$")
+        latexs=response_text.split("$")
         latex_text=""
         for i in range(1,len(latexs),2):
             latex_text+="["+str((i+1)//2)+"] "+latexs[i].strip("$")+"\n"
@@ -453,7 +453,7 @@ async def on_message(message):
             if len(t)+len(l)>=2000:
                 await message.channel.send(t)
                 t=""
-            t+=l
+            t+=l+"\n"
         await message.channel.send(t)
         if len(latex_text)>0:
             try:
