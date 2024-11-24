@@ -442,31 +442,28 @@ async def on_message(message):
         response=gemini_model.generate_content(math_prompt+message.content[5:])
         response_text=response.text.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("$$","$")
         latexs=response_text.split("$")
-        latex_text=""
-        for i in range(1,len(latexs),2):
-            latex_text+="["+str((i+1)//2)+"] "+latexs[i].strip("$")+"\n"
-            latexs[i]="[式"+str((i+1)//2)+"]"
-        main_text="".join(latexs)
-        lines=("-# "+main_text.replace("\n","\n-# ")).split("\n")
-        t=""
-        for l in lines:
-            if len(t)+len(l)>=2000:
-                await message.channel.send(t)
-                t=""
-            t+=l+"\n"
-        await message.channel.send(t)
-        if len(latex_text)>0:
-            try:
-                buf=latex_to_image(latex_text)
-            except:
-                await message.channel.send("エラー1 cannot create")
-                return
-            if buf:
-                await message.channel.send(file=discord.File(buf, 'tex.png'))
-                return
-            else:
-                await message.channel.send("エラー2 empty")
-                return
+        for i in range(0,len(latexs),2):
+            main_text=latexs[i]
+            lines=("-# "+main_text.replace("\n","\n-# ")).split("\n")
+            t=""
+            for l in lines:
+                if len(t)+len(l)>=2000:
+                    await message.channel.send(t)
+                    t=""
+                t+=l+"\n"
+            await message.channel.send(t)
+            if len(latexs)>i+1:
+                try:
+                    buf=latex_to_image(latexs[i+1].strip("$"))
+                except:
+                    await message.channel.send("エラー1 cannot create")
+                    return
+                if buf:
+                    await message.channel.send(file=discord.File(buf, 'tex.png'))
+                    return
+                else:
+                    await message.channel.send("エラー2 empty")
+                    return
         #else:
         #    await message.channel.send("エラー3 cannot find tex もう一度試してみて")
         return
