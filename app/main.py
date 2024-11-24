@@ -31,7 +31,7 @@ def latex_to_image(latex):
     ax.text(0.5, 0.5, f"${latex}$", fontsize=16, ha='center', va='center')
     ax.axis('off')
     buf = io.BytesIO()
-    plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.1, dpi=300)
+    plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.1, dpi=100)
     plt.close(fig)
     buf.seek(0)
     return buf
@@ -438,22 +438,21 @@ async def on_message(message):
         await message.channel.send(t)
         return
     if message.content.startswith('!math'):
-        math_prompt="数学の問題を出すので解説を作成してください。数式はlatex形式で$$で囲ってください。\n"
+        math_prompt="数学の問題を出すので解説を作成してください。複雑な数式は必要に応じてlatex形式で$$で囲ってください。\n"
         response=gemini_model.generate_content(math_prompt+message.content[5:])
         response_text=response.text.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("$$","$")
         latexs=response_text.split("$")
         for i in range(0,len(latexs),2):
-            main_text=latexs[i]
-            lines=main_text.split("\n")
-            t=""
-            for l in lines:
-                if len(t)+len(l)>=1990:
-                    await message.channel.send(t)
-                    t=""
-                if l=="":
-                    continue
-                t+="-# "+l+"\n"
-            await message.channel.send(t)
+            main_text=latexs[i].strip().strip("\n").strip()
+            if len(main_text)>0:
+                lines=main_text.split("\n")
+                t=""
+                for l in lines:
+                    if len(t)+len(l)>=1990:
+                        await message.channel.send(t)
+                        t=""
+                    t+="-# "+l+"\n"
+                await message.channel.send(t)
             if len(latexs)>i+1:
                 try:
                     buf=latex_to_image(latexs[i+1].strip("$"))
