@@ -444,26 +444,28 @@ async def on_message(message):
         latexs=response_text.split("$")
         for i in range(0,len(latexs),2):
             main_text=latexs[i]
-            lines=("-# "+main_text.replace("\n","\n-# ")).split("\n")
+            lines=main_text.split("\n")
             t=""
             for l in lines:
-                if len(t)+len(l)>=2000:
+                if len(t)+len(l)>=1990:
                     await message.channel.send(t)
                     t=""
-                t+=l+"\n"
+                if l=="":
+                    continue
+                t+="-# "+l+"\n"
             await message.channel.send(t)
             if len(latexs)>i+1:
                 try:
                     buf=latex_to_image(latexs[i+1].strip("$"))
                 except:
-                    await message.channel.send("エラー1 cannot create")
-                    return
+                    await message.channel.send(latexs[i+1].strip("$"))
+                    #return
                 if buf:
                     await message.channel.send(file=discord.File(buf, 'tex.png'))
-                    return
+                    #return
                 else:
-                    await message.channel.send("エラー2 empty")
-                    return
+                    await message.channel.send(latexs[i+1].strip("$"))
+                    #return
         #else:
         #    await message.channel.send("エラー3 cannot find tex もう一度試してみて")
         return
