@@ -428,7 +428,47 @@ async def on_message(message):
         return
     if message.content.startswith('!ジェミニストーム'):
         response=gemini_model.generate_content(message.content[9:])
-        await message.channel.send(response.text)
+        lines=("-# "+response.text.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# ")).split("\n")
+        t=""
+        for l in lines:
+            if len(t)+len(l)>=2000:
+                await message.channel.send(t)
+                t=""
+            t+=l
+        await message.channel.send(t)
+        return
+    if message.content.startswith('!math'):
+        math_prompt="数学の問題を出すので解説を作成してください。数式はlatex形式で$$で囲ってください。\n"
+        response=gemini_model.generate_content(math_prompt+message.content[5:])
+        response_text=response.text.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("$$","$")
+        latexs=response_text.split("$$")
+        latex_text=""
+        for i in range(1,len(latexs),2):
+            latex_text+=str((i+1)//2)+". "+latexs[i].strip("$")+"\n
+            latexs[i]="{式"+str((i+1)//2)+"}"
+        main_text="".join(latexs)
+        lines=("-# "+main_text.replace("\n","\n-# ")).split("\n")
+        t=""
+        for l in lines:
+            if len(t)+len(l)>=2000:
+                await message.channel.send(t)
+                t=""
+            t+=l
+        await message.channel.send(t)
+        if len(latex_text)>0:
+            try:
+                buf=latex_to_image(latex_text)
+            except:
+                await message.channel.send("エラー1 cannot create")
+                return
+            if buf:
+                await message.channel.send(file=discord.File(buf, 'tex.png'))
+                return
+            else:
+                await message.channel.send("エラー2 empty")
+                return
+        #else:
+        #    await message.channel.send("エラー3 cannot find tex もう一度試してみて")
         return
     if message.content.startswith('!ぼたもち'):# or message.channel.id==1211621332643749918:
         img_64=""
