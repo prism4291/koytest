@@ -12,3 +12,4 @@ sympy
 numpy
 dropbox
 pillow
+google-generativeai
