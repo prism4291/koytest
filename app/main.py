@@ -457,9 +457,10 @@ async def on_message(message):
             if len(latexs)>i+1:
                 buf=None
                 try:
-                    buf=latex_to_image(latexs[i+1].strip("$").strip().strip("\n").strip().replace("\\","\\\\"))
+                    buf=latex_to_image(latexs[i+1].strip("$").strip().strip("\n").strip().replace("\\",r"\\"))
                 except:
-                    await message.channel.send(latexs[i+1].strip("$"))
+                    pass
+                    #await message.channel.send(latexs[i+1].strip("$"))
                     #return
                 if buf:
                     await message.channel.send(file=discord.File(buf, 'tex.png'))
