@@ -439,7 +439,7 @@ async def on_message(message):
         await message.channel.send(t)
         return
     if message.content.startswith('!math'):
-        math_prompt="数学の問題を出すので解説を作成してください。複雑な数式は必要に応じてlatex形式で$$で囲ってください。\n"
+        math_prompt="数学の問題を出すので解説を作成してください。複雑な数式は必要に応じてmatplotlibのmathtext形式で$$で囲ってください。\n"
         response=gemini_model.generate_content(math_prompt+message.content[5:])
         response_text=response.text.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("$$","$")
         latexs=response_text.split("$")
@@ -457,7 +457,7 @@ async def on_message(message):
             if len(latexs)>i+1:
                 buf=None
                 try:
-                    buf=latex_to_image(repr(latexs[i+1].strip("$").strip().strip("\n").strip())[1:-1])
+                    buf=latex_to_image(latexs[i+1].strip("$").strip().strip("\n").strip())
                 except:
                     pass
                     #await message.channel.send(latexs[i+1].strip("$"))
