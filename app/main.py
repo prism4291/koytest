@@ -412,6 +412,7 @@ async def on_message(message):
             match_list = re.findall(r"r'([^']*)'", str(response.choices[0].message.content))
         if len(match_list)>0:
             extracted_latex = match_list[-1]
+            buf=None
             try:
                 buf=latex_to_image(extracted_latex.strip().strip("$"))
             except:
@@ -454,8 +455,9 @@ async def on_message(message):
                     t+="-# "+l+"\n"
                 await message.channel.send(t)
             if len(latexs)>i+1:
+                buf=None
                 try:
-                    buf=latex_to_image(latexs[i+1].strip("$").strip().strip("\n").strip())
+                    buf=latex_to_image(latexs[i+1].strip("$").strip().strip("\n").strip().replace("\\","\\\\"))
                 except:
                     await message.channel.send(latexs[i+1].strip("$"))
                     #return
