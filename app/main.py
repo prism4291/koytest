@@ -457,7 +457,7 @@ async def on_message(message):
             if len(latexs)>i+1:
                 buf=None
                 try:
-                    buf=latex_to_image(latexs[i+1].strip("$").strip().strip("\n").strip().replace("\\",r"\\"))
+                    buf=latex_to_image(repr(latexs[i+1].strip("$").strip().strip("\n").strip())[1:-1])
                 except:
                     pass
                     #await message.channel.send(latexs[i+1].strip("$"))
