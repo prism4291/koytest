@@ -235,7 +235,7 @@ groq_history=[]
 
 gemini_key = os.environ.get("gemini_key")
 genai.configure(api_key=gemini_key)
-gemini_model = genai.GenerativeModel("gemini-exp-1206")
+gemini_model = genai.GenerativeModel("gemini-2.0-flash-exp")
 
 
 xxx=0
