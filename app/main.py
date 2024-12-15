@@ -329,7 +329,7 @@ gemini_key = os.environ.get("gemini_key")
 genai.configure(api_key=gemini_key)
 gemini_model = genai.GenerativeModel("gemini-2.0-flash-exp")
 
-taro_chat = model.start_chat()
+taro_chat = gemini_model.start_chat()
 friend_chat = None
 professor_chat = None
 
@@ -429,11 +429,11 @@ async def on_message(message):
                             function_result = run_python_code(function_args["code"])
                         elif function_name == "talk_with_friend":
                             if friend_chat is None:
-                                friend_chat = model.start_chat()
+                                friend_chat = gemini_model.start_chat()
                             function_result = ask_for_help(function_args["message"],friend_chat)
                         elif function_name == "talk_with_professor":
                             if professor_chat is None:
-                                professor_chat = model.start_chat()
+                                professor_chat = gemini_model.start_chat()
                             function_result = ask_for_help(function_args["message"],professor_chat)
                     except Exception as e:
                         function_result = str(e)
