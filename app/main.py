@@ -24,6 +24,8 @@ import dropbox
 import threading
 import google.generativeai as genai
 import sys
+import subprocess
+import time
 
 from server import server_thread
 
@@ -40,17 +42,32 @@ async def message_send(ch,main_text):
         await ch.send(t)
 
 
-def run_python_code(code: str) -> str:
+def run_python_code(code: str, timeout: int = 10) -> str:
     code = code.replace("\\n", "\n")
-    old_stdout = sys.stdout
-    redirected_output = io.StringIO()
-    sys.stdout = redirected_output
+    file_path = "test1.py"
     try:
-        exec(code)
-        result = redirected_output.getvalue()
+        with open(file_path, "w") as f:
+            f.write(code)
+        process = subprocess.Popen(
+            ["python", file_path],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+        try:
+            stdout, stderr = process.communicate(timeout=timeout)
+            if process.returncode == 0:
+                result = stdout
+            else:
+                 if stderr:
+                     result = stderr
+                 else:
+                    result = f"Python process exited with code {process.returncode}"
+        except subprocess.TimeoutExpired:
+            process.kill()
+            result = "Timeout"
     except Exception as e:
         result = str(e)
-    sys.stdout = old_stdout
     return result
 
 def ask_for_help(question: str,co_worker_chat: genai.ChatSession) -> str:
@@ -63,17 +80,19 @@ simple_tool = {
             "name": "run_python_code",
             "description": 
 """
-def run_python_code(code: str) -> str:
-    code = code.replace("\\\\n", "\\n")
-    old_stdout = sys.stdout
-    redirected_output = io.StringIO()
-    sys.stdout = redirected_output
+def run_python_code(code: str, timeout: int = 10) -> str:
+    code = code.replace("\\n", "\n")
+    file_path = "test1.py"
     try:
-        exec(code)
-        result = redirected_output.getvalue()
-    except Exception as e:
-        result = str(e)
-    sys.stdout = old_stdout
+        with open(file_path, "w") as f:
+            f.write(code)
+        process = subprocess.Popen(
+            ["python", file_path],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+    #...
     return result
 """,
             "parameters": {
@@ -419,13 +438,18 @@ async def on_message(message):
             mee6=[]
             mee6_mode=False
         return
-
+    if message.content.startswith('!newtaro'):
+        taro_chat = gemini_model.start_chat()
+        friend_chat = None
+        professor_chat = None
+        await message_send(message.channel,"リセットしました")
+        return
     if message.content.startswith('!taro'):
         taro_messages=[genai.protos.Part(text=message.content[5:])]
         while len(taro_messages) > 0:
             response = taro_chat.send_message(genai.protos.Content(parts=taro_messages),tools=simple_tool)
             taro_messages=[]
-            #print(response)
+            print(response)
             for task in response.candidates[0].content.parts:
                 if "text" in task:
                     await message_send(message.channel,task.text)
