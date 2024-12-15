@@ -471,7 +471,7 @@ async def on_message(message):
                             function_result = ask_for_help(function_args["message"],professor_chat)
                     except Exception as e:
                         function_result = str(e)
-                    await message_send(message.channel,str(function_name)+str(dict(function_args))+"\n"+str(function_result))
+                    await message_send(message.channel,str(function_name)+(str(dict(function_args)).replace("\\n","\n"))+"\n"+str(function_result))
                     taro_messages.append(genai.protos.Part(function_response=genai.protos.FunctionResponse(name=function_name,response={"result": function_result})))
             #if len(taro_messages) == 0:
             #    user_text=input(">").strip()
