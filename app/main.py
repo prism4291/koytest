@@ -459,7 +459,7 @@ async def on_message(message):
             response = taro_chat.send_message(genai.protos.Content(parts=taro_messages),tools=simple_tool)
             taro_messages=[]
             ch=await client.fetch_channel(927206819116490793)
-            await message_send(ch,response.replace("\\\\n","\n").replace("\\\n","\n").replace("\\n","\n"))
+            await message_send(ch,str(response).replace("\\\\n","\n").replace("\\\n","\n").replace("\\n","\n"))
             for task in response.candidates[0].content.parts:
                 if "text" in task:
                     await message_send(message.channel,task.text)
