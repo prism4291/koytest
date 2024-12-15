@@ -37,9 +37,11 @@ async def message_send(ch,main_text):
         for l in lines:
             if len(t)+len(l)>=1990:
                 await ch.send(t)
+                await asyncio.sleep(0.2)
                 t=""
             t+="-# "+l+"\n"
         await ch.send(t)
+        await asyncio.sleep(0.2)
 
 
 def run_python_code(code: str, timeout: int = 10) -> str:
