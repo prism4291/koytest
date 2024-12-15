@@ -449,7 +449,8 @@ async def on_message(message):
         while len(taro_messages) > 0:
             response = taro_chat.send_message(genai.protos.Content(parts=taro_messages),tools=simple_tool)
             taro_messages=[]
-            print(response)
+            ch=await client.fetch_channel(927206819116490793)
+            await message_send(ch,response)
             for task in response.candidates[0].content.parts:
                 if "text" in task:
                     await message_send(message.channel,task.text)
@@ -470,8 +471,8 @@ async def on_message(message):
                             function_result = ask_for_help(function_args["message"],professor_chat)
                     except Exception as e:
                         function_result = str(e)
-                    #await message.channel.send(message_formatter(function_result))
-                    taro_messages.append(genai.protos.Part(function_response =genai.protos.FunctionResponse(name=function_name,response={"result": function_result})))
+                    await message_send(message.channel,str(function_name)+str(function_args)+"\n"+str(function_result))
+                    taro_messages.append(genai.protos.Part(function_response=genai.protos.FunctionResponse(name=function_name,response={"result": function_result})))
             #if len(taro_messages) == 0:
             #    user_text=input(">").strip()
             #    if user_text!="":
