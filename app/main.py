@@ -33,8 +33,15 @@ async def message_send(ch,main_text):
     main_text=str(main_text).strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n")
     if len(main_text)>0:
         lines=main_text.split("\n")
+        lines2 = []
+        for line in lines:
+            if len(line) > 1990:
+                for i in range(0, len(line), 1990):
+                    lines2.append(line[i:i+1990])
+            else:
+                lines2.append(line)
         t=""
-        for l in lines:
+        for l in lines2:
             if len(t)+len(l)>=1990:
                 await ch.send(t)
                 await asyncio.sleep(0.2)
