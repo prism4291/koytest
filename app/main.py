@@ -23,8 +23,100 @@ import asyncio
 import dropbox
 import threading
 import google.generativeai as genai
+import sys
 
 from server import server_thread
+
+def message_formatter(a):
+    return "-# "+str(a).strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# ")
+
+
+def run_python_code(code: str) -> str:
+    code = code.replace("\\n", "\n")
+    old_stdout = sys.stdout
+    redirected_output = io.StringIO()
+    sys.stdout = redirected_output
+    try:
+        exec(code)
+        result = redirected_output.getvalue()
+    except Exception as e:
+        result = str(e)
+    sys.stdout = old_stdout
+    return result
+
+def ask_for_help(question: str,co_worker_chat: genai.ChatSession) -> str:
+    response = co_worker_chat.send_message(genai.protos.Content(parts=[genai.protos.Part(text=question)]))
+    return response.candidates[0].content.parts[0].text
+
+simple_tool = {
+    "function_declarations": [
+         {
+            "name": "run_python_code",
+            "description": 
+"""
+def run_python_code(code: str) -> str:
+    code = code.replace("\\\\n", "\\n")
+    old_stdout = sys.stdout
+    redirected_output = io.StringIO()
+    sys.stdout = redirected_output
+    try:
+        exec(code)
+        result = redirected_output.getvalue()
+    except Exception as e:
+        result = str(e)
+    sys.stdout = old_stdout
+    return result
+""",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                        "type": "string",
+                        "description": "//your codes here",
+                  }
+                },
+                "required": ["code"]
+            }
+         },
+         {
+            "name": "talk_with_friend",
+            "description": 
+"""
+talk with your friend Hanako about anything.
+lets have a conversation over a cup of tea.
+""",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                        "type": "string",
+                        "description": "your message to Hanako",
+                  }
+                },
+                "required": ["message"]
+            }
+         },
+         {
+            "name": "talk_with_professor",
+            "description": 
+"""
+ask professor Kevin anything for ideas or suggestions.
+If you have any questions, please feel free to ask.
+""",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                        "type": "string",
+                        "description": "your question to professor Kevin",
+                  }
+                },
+                "required": ["message"]
+            }
+         },
+    ]
+}
+
 
 def latex_to_image(latex):
     fig, ax = plt.subplots(figsize=(0.01, 0.01))
@@ -237,6 +329,10 @@ gemini_key = os.environ.get("gemini_key")
 genai.configure(api_key=gemini_key)
 gemini_model = genai.GenerativeModel("gemini-2.0-flash-exp")
 
+taro_chat = model.start_chat()
+friend_chat = None
+professor_chat = None
+
 
 xxx=0
 yyy=0
@@ -288,7 +384,7 @@ async def on_ready():
 @client.event
 async def on_message(message):
     global vc
-    global groq_system,groq_history,yyy,mee6,mee6_mode
+    global groq_system,groq_history,yyy,mee6,mee6_mode,taro_chat,friend_chat,professor_chat
     if message.author == client.user:
         return
     if message.content=="!gacha":
@@ -314,6 +410,41 @@ async def on_message(message):
             mee6=[]
             mee6_mode=False
         return
+
+    if message.content.startswith('!taro'):
+        taro_messages=[genai.protos.Part(text=message.content[5:])]
+        while len(taro_messages) > 0:
+            response = taro_chat.send_message(genai.protos.Content(parts=taro_messages),tools=simple_tool)
+            taro_messages=[]
+            #print(response)
+            for task in response.candidates[0].content.parts:
+                if "text" in task:
+                    await message.channel.send(message_formatter(task.text))
+                elif "function_call" in task:
+                    function_name = task.function_call.name
+                    function_args = task.function_call.args
+                    #print(function_name, dict(function_args))
+                    try:
+                        if function_name == "run_python_code":
+                            function_result = run_python_code(function_args["code"])
+                        elif function_name == "talk_with_friend":
+                            if friend_chat is None:
+                                friend_chat = model.start_chat()
+                            function_result = ask_for_help(function_args["message"],friend_chat)
+                        elif function_name == "talk_with_professor":
+                            if professor_chat is None:
+                                professor_chat = model.start_chat()
+                            function_result = ask_for_help(function_args["message"],professor_chat)
+                    except Exception as e:
+                        function_result = str(e)
+                    #await message.channel.send(message_formatter(function_result))
+                    taro_messages.append(genai.protos.Part(function_response =genai.protos.FunctionResponse(name=function_name,response={"result": function_result})))
+            #if len(taro_messages) == 0:
+            #    user_text=input(">").strip()
+            #    if user_text!="":
+            #        taro_messages.append(genai.protos.Part(text=user_text))
+        
+        
     if message.content.startswith('!bgm'):
         if message.author.voice is None:
             await message.channel.send("ボイスチャンネルに参加してね")
