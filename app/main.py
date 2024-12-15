@@ -27,7 +27,7 @@ import sys
 
 from server import server_thread
 
-def message_send(ch,main_text):
+async def message_send(ch,main_text):
     main_text=str(main_text).strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n")
     if len(main_text)>0:
         lines=main_text.split("\n")
@@ -428,7 +428,7 @@ async def on_message(message):
             #print(response)
             for task in response.candidates[0].content.parts:
                 if "text" in task:
-                    message_send(message.channel,task.text)
+                    await message_send(message.channel,task.text)
                 elif "function_call" in task:
                     function_name = task.function_call.name
                     function_args = task.function_call.args
