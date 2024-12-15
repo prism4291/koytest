@@ -27,8 +27,17 @@ import sys
 
 from server import server_thread
 
-def message_formatter(a):
-    return "-# "+str(a).strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# ")
+def message_send(ch,main_text):
+    main_text=str(main_text).strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n")
+    if len(main_text)>0:
+        lines=main_text.split("\n")
+        t=""
+        for l in lines:
+            if len(t)+len(l)>=1990:
+                await ch.send(t)
+                t=""
+            t+="-# "+l+"\n"
+        await ch.send(t)
 
 
 def run_python_code(code: str) -> str:
@@ -419,7 +428,7 @@ async def on_message(message):
             #print(response)
             for task in response.candidates[0].content.parts:
                 if "text" in task:
-                    await message.channel.send(message_formatter(task.text))
+                    message_send(message.channel,task.text)
                 elif "function_call" in task:
                     function_name = task.function_call.name
                     function_args = task.function_call.args
@@ -443,7 +452,7 @@ async def on_message(message):
             #    user_text=input(">").strip()
             #    if user_text!="":
             #        taro_messages.append(genai.protos.Part(text=user_text))
-        
+        return
         
     if message.content.startswith('!bgm'):
         if message.author.voice is None:
