@@ -52,7 +52,7 @@ async def message_send(ch,main_text):
 
 
 def run_python_code(code: str, timeout: int = 10) -> str:
-    code = code.replace("\\\\n","\n").replace("\\\n","\n").replace("\\n", "\n")
+    code = code.replace("\\\\n","\n").replace("\\\n","\n").replace("\\n", "\n").replace('\\\"','"').replace('\\"','"').replace('\"','"')
     file_path = "test1.py"
     try:
         with open(file_path, "w") as f:
