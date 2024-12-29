@@ -405,6 +405,8 @@ async def loop():
             if diff_days>=0:
                 msg='<@&1231962872360468491>'
                 msg='あと'+str(diff_days)+'日'
+                if diff_days==0:
+                    msg+="\nhttps://media.discordapp.net/attachments/768398570566320149/1322929596685094973/IMG_1588.jpg?ex=6772a9b2&is=67715832&hm=2bfcfec5580f1858e7421e8c30a7ed9b43a332cde874a490797c5045c4db1fd3&"
                 await ch.send(msg)
         xxx=1
     else:
