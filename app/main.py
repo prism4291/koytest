@@ -29,7 +29,75 @@ import time
 
 from server import server_thread
 
-async def message_send(ch,main_text):
+latex_server = os.environ.get("latex_server")
+
+def latex_to_image(latex):
+    p = {"math": latex}
+    try:
+        r = requests.get(latex_server, params=p)
+        return io.BytesIO(r.content)
+    except:
+        return None
+
+
+async def message_send(ch, main_text):
+    if not main_text:
+        return
+    latex_regex = r"(\$[^\$]+\$|\$\$[^\$]+\$\$|\\begin\{[a-zA-Z]+\}.*?\\end\{[a-zA-Z]+\})"
+    latex_matches = []
+    for match in re.finditer(latex_regex, main_text):
+        latex_matches.append((match.start(), match.end(), match.group(0)))
+    parts = []
+    last_end = 0
+    for start, end, latex_str in latex_matches:
+        if start > last_end:
+            parts.append(("text", main_text[last_end:start]))
+        parts.append(("latex", latex_str.strip("$")))
+        last_end = end
+    if last_end < len(main_text):
+        parts.append(("text", main_text[last_end:]))
+
+    for part_type, part_content in parts:
+        if not part_content:
+            continue
+        if part_type == "latex":
+            image_data = latex_to_image(part_content)
+            if image_data:
+                file = discord.File(image_data, filename="latex.png")
+                await ch.send(file=file)
+                await asyncio.sleep(0.2)
+            else:
+                await send_text_with_limit(ch, "```\n" + part_content + "\n```")
+                await asyncio.sleep(0.2)
+        elif part_type == "text":
+            await send_text_with_limit(ch,part_content.strip().replace("\n\n", "\n").replace("\n\n", "\n").replace("\n\n", "\n"))
+
+
+async def send_text_with_limit(ch, text):
+    if not text:
+        return
+    lines = []
+    if len(text) > 1990:
+        for i in range(0, len(text), 1990):
+            lines.append(text[i:i + 1990])
+    else:
+        lines.append(text)
+    t = ""
+    for l in lines:
+        if len(t) + len(l) >= 1990:
+            await ch.send(t)
+            await asyncio.sleep(0.2)
+            t = ""
+        t += "-# " + l + "\n"
+    if t:
+        await ch.send(t)
+        await asyncio.sleep(0.2)
+
+
+
+
+
+async def message_send_old(ch,main_text):
     main_text=str(main_text).strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n")
     if len(main_text)>0:
         lines=main_text.split("\n")
@@ -155,7 +223,7 @@ If you have any questions, please feel free to ask.
 }
 
 
-def latex_to_image(latex):
+def latex_to_image_old(latex):
     fig, ax = plt.subplots(figsize=(0.01, 0.01))
     ax.text(0.5, 0.5, f"${latex}$", fontsize=16, ha='center', va='center')
     ax.axis('off')
@@ -164,6 +232,8 @@ def latex_to_image(latex):
     plt.close(fig)
     buf.seek(0)
     return buf
+
+
 
 def get_dbx_token():
     app_key = os.environ.get("app_key")
@@ -615,7 +685,7 @@ async def on_message(message):
         await message.channel.send(t)
         return
     if message.content.startswith('!math'):
-        math_prompt="数学の問題を出すので解説を作成してください。複雑な数式は必要に応じてmatplotlibのmathtext形式で$$で囲ってください。\n"
+        math_prompt="数学の問題を出すので解説を作成してください。複雑な数式は必要に応じてmathjaxに対応したlatex形式で$$で囲って出力してください。\n"
         response=gemini_model.generate_content(math_prompt+message.content[5:])
         response_text=response.text.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("$$","$")
         latexs=response_text.split("$")
