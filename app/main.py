@@ -64,7 +64,7 @@ async def message_send(ch, main_text):
             image_data = latex_to_image(part_content)
             if image_data:
                 file = discord.File(image_data, filename="latex.png")
-                await ch.send(file=file)
+                await ch.send("```\n" + part_content + "\n```",file=file)
                 await asyncio.sleep(0.2)
             else:
                 await send_text_with_limit(ch, "```\n" + part_content + "\n```")
@@ -495,15 +495,15 @@ async def on_message(message):
             await message.channel.send("エラー")
         return
     if message.content.startswith('!latex'):
-        await message_send(message.content)
+        await message_send(message.channel,message.content)
     if message.content.startswith('!ジェミニストーム'):
         response=gemini_model.generate_content(message.content[9:])
-        await message_send(response.text)
+        await message_send(message.channel,response.text)
         return
     if message.content.startswith('!math'):
         math_prompt="数学の問題を出すので解説を作成してください。複雑な数式は必要に応じてmathjaxに対応したlatex形式で$$で囲って出力してください。\n"
         response=gemini_model.generate_content(math_prompt+message.content[5:])
-        await message_send(response.text)
+        await message_send(message.channel,response.text)
         return
     
 
