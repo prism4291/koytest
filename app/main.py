@@ -447,7 +447,7 @@ async def on_message(message):
                     function_args = task.function_call.args
                     try:
                         if function_name == "run_python_code":
-                            await ch.send("```py\n"+code.replace("\\\\n","\n").replace("\\\n","\n").replace("\\n", "\n").replace('\\\"','"').replace('\\"','"').replace('\"','"')[:1980]+"\n```")
+                            await ch.send("```py\n"+function_args["code"].replace("\\\\n","\n").replace("\\\n","\n").replace("\\n", "\n").replace('\\\"','"').replace('\\"','"').replace('\"','"')[:1980]+"\n```")
                             function_result = run_python_code(function_args["code"])
                         elif function_name == "talk_with_friend":
                             if friend_chat is None:
