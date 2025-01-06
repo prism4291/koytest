@@ -70,10 +70,11 @@ async def message_send(ch, main_text):
                 await send_text_with_limit(ch, "```\n" + part_content + "\n```")
                 await asyncio.sleep(0.2)
         elif part_type == "text":
-            await send_text_with_limit(ch,part_content.strip().replace("\n\n", "\n").replace("\n\n", "\n").replace("\n\n", "\n"))
+            await send_text_with_limit(ch,part_content)
 
 
 async def send_text_with_limit(ch, text):
+    text=text.strip().replace("\n\n", "\n").replace("\n\n", "\n").replace("\n\n", "\n")
     if not text:
         return
     lines = []
@@ -92,32 +93,6 @@ async def send_text_with_limit(ch, text):
     if t:
         await ch.send(t)
         await asyncio.sleep(0.2)
-
-
-
-
-
-async def message_send_old(ch,main_text):
-    main_text=str(main_text).strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n")
-    if len(main_text)>0:
-        lines=main_text.split("\n")
-        lines2 = []
-        for line in lines:
-            if len(line) > 1990:
-                for i in range(0, len(line), 1990):
-                    lines2.append(line[i:i+1990])
-            else:
-                lines2.append(line)
-        t=""
-        for l in lines2:
-            if len(t)+len(l)>=1990:
-                await ch.send(t)
-                await asyncio.sleep(0.2)
-                t=""
-            t+="-# "+l+"\n"
-        await ch.send(t)
-        await asyncio.sleep(0.2)
-
 
 def run_python_code(code: str, timeout: int = 10) -> str:
     code = code.replace("\\\\n","\n").replace("\\\n","\n").replace("\\n", "\n").replace('\\\"','"').replace('\\"','"').replace('\"','"')
@@ -222,7 +197,7 @@ If you have any questions, please feel free to ask.
     ]
 }
 
-
+"""
 def latex_to_image_old(latex):
     fig, ax = plt.subplots(figsize=(0.01, 0.01))
     ax.text(0.5, 0.5, f"${latex}$", fontsize=16, ha='center', va='center')
@@ -233,7 +208,7 @@ def latex_to_image_old(latex):
     buf.seek(0)
     return buf
 
-
+"""
 
 def get_dbx_token():
     app_key = os.environ.get("app_key")
@@ -375,53 +350,6 @@ def plot_expression(expression_str):
 
 dotenv.load_dotenv()
 
-META_PROMPT = """
-Given a task description or existing prompt, produce a detailed system prompt to guide a language model in completing the task effectively.
-
-# Guidelines
-
-- Understand the Task: Grasp the main objective, goals, requirements, constraints, and expected output.
-- Minimal Changes: If an existing prompt is provided, improve it only if it's simple. For complex prompts, enhance clarity and add missing elements without altering the original structure.
-- Reasoning Before Conclusions**: Encourage reasoning steps before any conclusions are reached. ATTENTION! If the user provides examples where the reasoning happens afterward, REVERSE the order! NEVER START EXAMPLES WITH CONCLUSIONS!
-    - Reasoning Order: Call out reasoning portions of the prompt and conclusion parts (specific fields by name). For each, determine the ORDER in which this is done, and whether it needs to be reversed.
-    - Conclusion, classifications, or results should ALWAYS appear last.
-- Examples: Include high-quality examples if helpful, using placeholders [in brackets] for complex elements.
-   - What kinds of examples may need to be included, how many, and whether they are complex enough to benefit from placeholders.
-- Clarity and Conciseness: Use clear, specific language. Avoid unnecessary instructions or bland statements.
-- Formatting: Use markdown features for readability. DO NOT USE ``` CODE BLOCKS UNLESS SPECIFICALLY REQUESTED.
-- Preserve User Content: If the input task or prompt includes extensive guidelines or examples, preserve them entirely, or as closely as possible. If they are vague, consider breaking down into sub-steps. Keep any details, guidelines, examples, variables, or placeholders provided by the user.
-- Constants: DO include constants in the prompt, as they are not susceptible to prompt injection. Such as guides, rubrics, and examples.
-- Output Format: Explicitly the most appropriate output format, in detail. This should include length and syntax (e.g. short sentence, paragraph, JSON, etc.)
-    - For tasks outputting well-defined or structured data (classification, JSON, etc.) bias toward outputting a JSON.
-    - JSON should never be wrapped in code blocks (```) unless explicitly requested.
-
-The final prompt you output should adhere to the following structure below. Do not include any additional commentary, only output the completed system prompt. SPECIFICALLY, do not include any additional messages at the start or end of the prompt. (e.g. no "---")
-
-[Concise instruction describing the task - this should be the first line in the prompt, no section header]
-
-[Additional details as needed.]
-
-[Optional sections with headings or bullet points for detailed steps.]
-
-# Steps [optional]
-
-[optional: a detailed breakdown of the steps necessary to accomplish the task]
-
-# Output Format
-
-[Specifically call out how the output should be formatted, be it response length, structure e.g. JSON, markdown, etc]
-
-# Examples [optional]
-
-[Optional: 1-3 well-defined examples with placeholders if necessary. Clearly mark where examples start and end, and what the input and output are. User placeholders as necessary.]
-[If the examples are shorter than what a realistic example is expected to be, make a reference with () explaining how real examples should be longer / shorter / different. AND USE PLACEHOLDERS! ]
-
-# Notes [optional]
-
-[optional: edge cases, details, and an area to call or repeat out specific important considerations]
-""".strip()
-
-
 TOKEN = os.environ.get("TOKEN")
 intents = discord.Intents.default()
 intents.message_content = True
@@ -496,29 +424,6 @@ async def on_message(message):
     global groq_system,groq_history,yyy,mee6,mee6_mode,taro_chat,friend_chat,professor_chat
     if message.author == client.user:
         return
-    if message.content=="!gacha":
-        mee6_mode=True
-        return
-    if mee6_mode and message.author.id == 159985870458322944:
-        mee6.append(message.content)
-        if len(mee6)==5:
-            mee6_str="\n".join(mee6)
-            next_messages=[{"role": "system","content": "In the following conversation, only the Japanese language is allowed.\nあなたは日本の昔話の小説家です。日本語で答えてください。"},{"role": "user", "content":"あらすじを考えました。物語を日本語で書いてください。"+mee6_str}]
-            response = groq_client.chat.completions.create(model="llama-3.1-8b-instant",
-                                            messages=next_messages,
-                                            max_tokens=1000,
-                                            temperature=1.2)
-            message_split=[]
-            message_to_split=response.choices[0].message.content.replace("\n\n","\n")
-            while len(message_to_split)>1900:
-                message_split.append(message_to_split[0:1900])
-                message_to_split=message_to_split[1900:]
-            message_split.append(message_to_split)
-            for ms in message_split:
-                await message.channel.send("-# "+ms.strip().replace("\n","\n-# "))
-            mee6=[]
-            mee6_mode=False
-        return
     if message.content.startswith('!newtaro'):
         taro_chat = gemini_model.start_chat()
         friend_chat = None
@@ -531,14 +436,13 @@ async def on_message(message):
             response = taro_chat.send_message(genai.protos.Content(parts=taro_messages),tools=simple_tool)
             taro_messages=[]
             ch=await client.fetch_channel(927206819116490793)
-            await message_send(ch,str(response).replace("\\\\n","\n").replace("\\\n","\n").replace("\\n","\n"))
+            await message_send(ch,str(response))
             for task in response.candidates[0].content.parts:
                 if "text" in task:
                     await message_send(message.channel,task.text)
                 elif "function_call" in task:
                     function_name = task.function_call.name
                     function_args = task.function_call.args
-                    #print(function_name, dict(function_args))
                     try:
                         if function_name == "run_python_code":
                             function_result = run_python_code(function_args["code"])
@@ -552,12 +456,8 @@ async def on_message(message):
                             function_result = ask_for_help(function_args["message"],professor_chat)
                     except Exception as e:
                         function_result = str(e)
-                    await message_send(message.channel,str(function_name)+(str(dict(function_args)).replace("\\\\n","\n").replace("\\\n","\n").replace("\\n","\n"))+"\n実行結果--------\n"+str(function_result)+"\n----------------")
+                    await message_send(message.channel,str(function_name)+str(dict(function_args))+"\n実行結果--------\n"+str(function_result)+"\n----------------")
                     taro_messages.append(genai.protos.Part(function_response=genai.protos.FunctionResponse(name=function_name,response={"result": function_result})))
-            #if len(taro_messages) == 0:
-            #    user_text=input(">").strip()
-            #    if user_text!="":
-            #        taro_messages.append(genai.protos.Part(text=user_text))
         return
         
     if message.content.startswith('!bgm'):
@@ -580,54 +480,12 @@ async def on_message(message):
             vc = None
             await message.channel.send("無限bgmはたひにました!")
         return
-    if message.content.startswith('!ぼたもちストップ'):
-        await message.channel.send("stop 5min")
-        yyy=0
-        return
-    if message.content.startswith('!ぼたもちリセット'):
-        await message.channel.send("reset "+str(len(groq_history)))
-        yyy=0
-        groq_history=[]
-        groq_system={"role": "system","content": "In the following conversation, only the Japanese language is allowed.あなたはキャラクター「ぼたもち」役です。"}
-        return
-    if message.content.startswith('!ぼたもちシステム'):
-        groq_history=[]
-        groq_system={"role": "system","content": "In the following conversation, only the Japanese language is allowed."+message.content[9:]}
-        await message.channel.send(groq_system["content"])
-        return
-    if message.content.startswith('!おねえさん'):
-        parts = re.split(r'\D+',message.content)
-        nums=[]
-        for ppp in parts:
-            if ppp:
-                try:
-                    nums.append(int(ppp))
-                except:
-                    pass
-        if len(nums)!=2:
-            await message.channel.send("エラー "+str(nums))
-            return
-        if nums[0]>6 or nums[1]>6 or nums[0]<1 or nums[1]<1:
-            await message.channel.send("1以上6以下 "+str(nums))
-            return
-        universe = tl.grid(nums[0],nums[1])
-        GraphSet.set_universe(universe)
-        start = 1
-        end = (nums[0]+1)*(nums[1]+1)
-        paths = GraphSet.paths(start, end)
-        total_paths = paths.len()
-        await message.channel.send(f"{nums[0]}x{nums[1]}格子グラフの総経路数: {total_paths}")
+
     if message.content.startswith('!!'):
         character_name=message.content[2:].split(" ")[0]
         character_sentence=message.content[len(character_name)+3:]
-        next_messages=[{"role": "system","content": "In the following conversation, only the Japanese language is allowed."}]
-        next_chat={"role": "user", "content": "以下の発言を\""+character_name+"\"の発言に直してください。\n「"+character_sentence+"」"}
-        next_messages.append(next_chat)
-        response = groq_client.chat.completions.create(model="llama-3.1-8b-instant",
-                                            messages=next_messages,
-                                            max_tokens=720,
-                                            temperature=1.05)
-        await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
+        response=gemini_model.generate_content("以下の発言を\""+character_name+"\"の発言に直してください。\n「"+character_sentence+"」")
+        await message_send(response.text)
         return
     if message.content.startswith('!func'):
         buf = plot_expression(message.content[5:].strip())
@@ -636,222 +494,19 @@ async def on_message(message):
         else:
             await message.channel.send("エラー")
         return
-    if message.content.startswith('!tex'):
-        response = groq_client.chat.completions.create(
-                    model="llama-3.1-8b-instant",
-                    messages=[
-                        {
-                            "role": "system",
-                            "content": 'You are a helpful assistant that converts mathematical expressions to TeX format. Please return the TeX output in a raw string format (e.g., r"..." use double quotes).'
-                        },
-                        {
-                            "role": "user",
-                            "content": 'Convert the following mathematical expression to TeX: r"'+message.content[6:].strip()+'". Please provide the output as a raw string.',
-                        }
-                    ],
-                    temperature=0.85,
-                    max_tokens=1024,
-                )
-        await message.channel.send(response.choices[0].message.content)
-        match_list = re.findall(r'r"([^"]*)"', str(response.choices[0].message.content))
-        if len(match_list)==0:
-            match_list = re.findall(r"r'([^']*)'", str(response.choices[0].message.content))
-        if len(match_list)>0:
-            extracted_latex = match_list[-1]
-            buf=None
-            try:
-                buf=latex_to_image(extracted_latex.strip().strip("$"))
-            except:
-                await message.channel.send("エラー1 cannot create")
-                return
-            if buf:
-                await message.channel.send(file=discord.File(buf, 'tex.png'))
-                return
-            else:
-                await message.channel.send("エラー2 empty")
-                return
-        else:
-            await message.channel.send("エラー3 cannot find tex もう一度試してみて")
-        return
+    if message.content.startswith('!latex'):
+        await message_send(message.content)
     if message.content.startswith('!ジェミニストーム'):
         response=gemini_model.generate_content(message.content[9:])
-        lines=("-# "+response.text.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# ")).split("\n")
-        t=""
-        for l in lines:
-            if len(t)+len(l)>=2000:
-                await message.channel.send(t)
-                t=""
-            t+=l+"\n"
-        await message.channel.send(t)
+        await message_send(response.text)
         return
     if message.content.startswith('!math'):
         math_prompt="数学の問題を出すので解説を作成してください。複雑な数式は必要に応じてmathjaxに対応したlatex形式で$$で囲って出力してください。\n"
         response=gemini_model.generate_content(math_prompt+message.content[5:])
-        response_text=response.text.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("$$","$")
-        latexs=response_text.split("$")
-        for i in range(0,len(latexs),2):
-            main_text=latexs[i].strip().strip("\n").strip()
-            if len(main_text)>0:
-                lines=main_text.split("\n")
-                t=""
-                for l in lines:
-                    if len(t)+len(l)>=1990:
-                        await message.channel.send(t)
-                        t=""
-                    t+="-# "+l+"\n"
-                await message.channel.send(t)
-            if len(latexs)>i+1:
-                buf=None
-                try:
-                    buf=latex_to_image(latexs[i+1].strip("$").strip().strip("\n").strip())
-                except:
-                    pass
-                    #await message.channel.send(latexs[i+1].strip("$"))
-                    #return
-                if buf:
-                    await message.channel.send(file=discord.File(buf, 'tex.png'))
-                    #return
-                else:
-                    await message.channel.send(latexs[i+1].strip("$"))
-                    #return
-        #else:
-        #    await message.channel.send("エラー3 cannot find tex もう一度試してみて")
+        await message_send(response.text)
         return
-    if message.content.startswith('!ぼたもち'):# or message.channel.id==1211621332643749918:
-        img_64=""
-        try:
-            if message.attachments:
-                for attachment in message.attachments:
-                    if attachment.content_type.startswith("image"):
-                        img_bytes = await attachment.read()
-                        img_64=base64.b64encode(img_bytes).decode("utf-8")
-                        break
-        except:
-            img_64=""
-                
-        try:
-            if yyy<0:
-                yyy+=1
-                await message.channel.send("rate limit")
-                return
-            
-            if len(groq_history)>20:
-                groq_history=groq_history[-20:]
-            if img_64:
-                todo_message=""
-                next_chat={
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": "画像には何が見えますか？"
-                        },
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{img_64}",
-                            },
-                        }
-                    ]
-                }
-                response = groq_client.chat.completions.create(
-                    model="llama-3.2-11b-vision-preview",
-                    messages=[next_chat],
-                    max_tokens=480,
-                )
-                todo_message+=response.choices[0].message.content
-                #await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
-                #groq_history.append({"role": "user", "content": "画像には何が見えますか？"})
-                #groq_history.append({"role": "assistant","content": response.choices[0].message.content})
-                next_chat={
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": "画像には何か書かれていますか？"
-                        },
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{img_64}",
-                            },
-                        }
-                    ]
-                }
-                response = groq_client.chat.completions.create(
-                    model="llama-3.2-11b-vision-preview",
-                    messages=[next_chat],
-                    max_tokens=240,
-                )
-                todo_message+=response.choices[0].message.content
-                #await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
-                #groq_history.append({"role": "user", "content": "画像には何か書かれていますか？"})
-                #groq_history.append({"role": "assistant","content": response.choices[0].message.content})
-                #next_messages=[groq_system]
-                #next_messages.extend(groq_history)
-                next_chat={
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": "何を伝えたいのかまとめてください。"+message.content
-                        },
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{img_64}",
-                            },
-                        }
-                    ]
-                }
-                #next_messages.append(next_chat)
-                response = groq_client.chat.completions.create(
-                    model="llama-3.2-11b-vision-preview",
-                    messages=[next_chat],
-                    max_tokens=240,
-                )
-                todo_message+=response.choices[0].message.content
-                #next_messages=[groq_system]
-                #next_messages.extend(groq_history)
-                next_chat={
-                    "role": "user",
-                    "content": "以下の文章を整形してください。\n(start)\n"+todo_message+"\n(end)"
-                }
-                #next_messages.append(next_chat)
-                response = groq_client.chat.completions.create(
-                    model="llama-3.1-8b-instant",
-                    messages=[next_chat],
-                    temperature=0.5,
-                    max_tokens=1024,
-                )
-                await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
-                groq_history.append({"role": "user", "content": "画像を送信しました。"+message.content})
-                groq_history.append({"role": "assistant","content": response.choices[0].message.content})
-                return
-            #if not message.content.startswith('!ぼたもち'):
-            #    return
-            next_messages=[groq_system]
-            next_messages.extend(groq_history)
-            next_chat={"role": "user", "content": "「"+str(message.author)+"」さん:「"+message.content+"」"}
-            next_messages.append(next_chat)
-            response = groq_client.chat.completions.create(model="llama-3.1-8b-instant",
-                                            messages=next_messages,
-                                            max_tokens=720,
-                                            temperature=0.85)
-            await message.channel.send("-# "+response.choices[0].message.content.strip().replace("\n\n","\n").replace("\n\n","\n").replace("\n\n","\n").replace("\n","\n-# "))
-            groq_history.append(next_chat)
-            groq_history.append({"role": "assistant","content": response.choices[0].message.content})
-            #ch=await client.fetch_channel(1252576904301510656)
-            #await ch.send(response.choices[0].message.content)
-            #ch=await client.fetch_channel(1252624652875075697)
-            #await ch.send(response.choices[0].message.content)
-        except Exception as e:
-            ch=await client.fetch_channel(927206819116490793)
-            ee=str(e)
-            if len(ee)>2000:
-                ee=ee[:900]+"\n\n"+ee[-900:]
-            await ch.send("onmessage\n"+ee)
-            
+    
+
 
 
 # Koyeb用 サーバー立ち上げ
