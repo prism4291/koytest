@@ -426,6 +426,27 @@ async def on_message(message):
     global groq_system,groq_history,yyy,mee6,mee6_mode,taro_chat,friend_chat,professor_chat
     if message.author == client.user:
         return
+    if message.content.startswith('!solve'):
+        solve_chat = gemini_model.start_chat()
+        prompt="これから、私が考えた試作の問題を解いてもらいます。以下のタスクを順番に実行して、答えを導いてください。複雑な数式は必要に応じてmathjaxに対応したlatex形式で$$で囲って出力してください。\n"
+        prompt+="[task1] 問題文を与えるので、時系列、与えられたデータ、答えの形式、特殊条件などをまとめてください。\n"
+        prompt+=message.content[5:]
+        response=solve_chat.send_message(genai.protos.Content(parts=prompt))
+        prompt="[task2] 問題に、試行実験や例などがあれば、実際に検証してください。また、簡単な例を考え、それも検証してください。"
+        response=solve_chat.send_message(genai.protos.Content(parts=prompt))
+        prompt="[task3] もう一度問題を与えるので、大体の答えの予想を、間違えてもいいので直感で答えてください。\n"
+        prompt+=message.content[5:]
+        response=solve_chat.send_message(genai.protos.Content(parts=prompt))
+        prompt="[task4] では、実際に解いて、答えを導いてください。"
+        response=solve_chat.send_message(genai.protos.Content(parts=prompt))
+        prompt="[task5] 答えの過程を、それぞれの段階で確信度(%)で表し、低い場合は理由も説明してください。"
+        response=solve_chat.send_message(genai.protos.Content(parts=prompt))
+        prompt="[task6] 修正できる場合は修正し、もう一度答えを導いてください。"
+        response=solve_chat.send_message(genai.protos.Content(parts=prompt))
+        prompt="[task7] 解答を清書してください。"
+        response=solve_chat.send_message(genai.protos.Content(parts=prompt))
+        await message_send(message.channel,response.text)
+        return
     if message.content.startswith('!newtaro'):
         taro_chat = gemini_model.start_chat()
         friend_chat = None
