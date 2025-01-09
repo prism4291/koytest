@@ -489,7 +489,7 @@ async def on_message(message):
         response=solve_chat.send_message(genai.protos.Content(parts=[genai.protos.Part(text=prompt)]))
         prompt="[task4] では、実際に解いて、答えを導いてください。"
         response=solve_chat.send_message(genai.protos.Content(parts=[genai.protos.Part(text=prompt)]))
-        prompt="[task5] 答えの過程を、それぞれの段階で確信度(%)で表し、低い場合は理由も説明してください。"
+        prompt="[task5] 答えの過程のおかしい部分に「なんでやねん」とツッコミを入れてください。どうしてこうなった？の部分を指摘してください。また、それってあなたの感想ですよね？データとかあるんですか？お前の中ではそうなんだろう。お前の中ではな。全然なってない、全てやり直せ。"
         response=solve_chat.send_message(genai.protos.Content(parts=[genai.protos.Part(text=prompt)]))
         prompt="[task6] 今回だけ、run_python_codeを使用できます。使用したい用途があれば、使用してください。"
         try:
