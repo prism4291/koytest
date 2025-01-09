@@ -64,7 +64,8 @@ async def message_send(ch, main_text):
             image_data = latex_to_image(part_content)
             if image_data:
                 file = discord.File(image_data, filename="latex.png")
-                await ch.send("```\n" + part_content + "\n```",file=file)
+                #await ch.send("```\n" + part_content + "\n```",file=file)
+                await ch.send(file=file)
                 await asyncio.sleep(0.2)
             else:
                 await send_text_with_limit(ch, "```\n" + part_content.strip() + "\n```")
@@ -196,6 +197,54 @@ If you have any questions, please feel free to ask.
                 "required": ["message"]
             }
          },
+    ]
+}
+
+"""
+def latex_to_image_old(latex):
+    fig, ax = plt.subplots(figsize=(0.01, 0.01))
+    ax.text(0.5, 0.5, f"${latex}$", fontsize=16, ha='center', va='center')
+    ax.axis('off')
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.1, dpi=100)
+    plt.close(fig)
+    buf.seek(0)
+    return buf
+
+"""
+
+python_tool = {
+    "function_declarations": [
+         {
+            "name": "run_python_code",
+            "description": 
+"""
+def run_python_code(code: str, timeout: int = 10) -> str:
+    code = code.replace("\\n", "\n")
+    file_path = "test1.py"
+    try:
+        with open(file_path, "w") as f:
+            f.write(code)
+        process = subprocess.Popen(
+            ["python", file_path],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+    #...
+    return result
+""",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                        "type": "string",
+                        "description": "//your codes here",
+                  }
+                },
+                "required": ["code"]
+            }
+         }
     ]
 }
 
@@ -427,6 +476,7 @@ async def on_message(message):
     if message.author == client.user:
         return
     if message.content.startswith('!solve'):
+        ch=await client.fetch_channel(927206819116490793)
         solve_chat = gemini_model.start_chat()
         prompt="これから、私が考えた試作の問題を解いてもらいます。以下のタスクを順番に実行して、答えを導いてください。複雑な数式は必要に応じてmathjaxに対応したlatex形式で$$で囲って出力してください。\n"
         prompt+="[task1] 問題文を与えるので、時系列、与えられたデータ、答えの形式、特殊条件などをまとめてください。\n"
@@ -441,9 +491,28 @@ async def on_message(message):
         response=solve_chat.send_message(genai.protos.Content(parts=[genai.protos.Part(text=prompt)]))
         prompt="[task5] 答えの過程を、それぞれの段階で確信度(%)で表し、低い場合は理由も説明してください。"
         response=solve_chat.send_message(genai.protos.Content(parts=[genai.protos.Part(text=prompt)]))
-        prompt="[task6] 修正できる場合は修正し、もう一度答えを導いてください。"
+        prompt="[task6] 今回だけ、pythonを使用できます。使用したい用途があれば、使用してください。"
+        response=solve_chat.send_message(genai.protos.Content(parts=[genai.protos.Part(text=prompt)]),tools=python_tool)
+        has_func=True
+        while has_func:
+            has_func=False
+            for task in response.candidates[0].content.parts:
+                if "function_call" in task:
+                    has_func=True
+                    function_name = task.function_call.name
+                    function_args = task.function_call.args
+                    try:
+                        if function_name == "run_python_code":
+                            await ch.send("```py\n"+function_args["code"].replace("\\\\n","\n").replace("\\\n","\n").replace("\\n", "\n").replace('\\\"','"').replace('\\"','"').replace('\"','"').replace("\\\'","'").replace("\\'","'").replace("\'","'")[:1980]+"\n```")
+                            function_result = run_python_code(function_args["code"])
+                    except Exception as e:
+                        function_result = str(e)
+                    await message_send(ch,"実行結果--------\n"+str(function_result)+"\n----------------")
+                    response=solve_chat.send_message(genai.protos.Part(function_response=genai.protos.FunctionResponse(name=function_name,response={"result": function_result})),tools=python_tool)
+        prompt="[task7] これまでの会話を踏まえ、もう一度答えを導いてください。\n"
+        prompt+=message.content[6:]
         response=solve_chat.send_message(genai.protos.Content(parts=[genai.protos.Part(text=prompt)]))
-        prompt="[task7] 解答を清書してください。"
+        prompt="[task8] 解答を清書してください。"
         response=solve_chat.send_message(genai.protos.Content(parts=[genai.protos.Part(text=prompt)]))
         await message_send(message.channel,response.text)
         return
