@@ -491,9 +491,12 @@ async def on_message(message):
         response=solve_chat.send_message(genai.protos.Content(parts=[genai.protos.Part(text=prompt)]))
         prompt="[task5] 答えの過程を、それぞれの段階で確信度(%)で表し、低い場合は理由も説明してください。"
         response=solve_chat.send_message(genai.protos.Content(parts=[genai.protos.Part(text=prompt)]))
-        prompt="[task6] 今回だけ、pythonを使用できます。使用したい用途があれば、使用してください。"
-        response=solve_chat.send_message(genai.protos.Content(parts=[genai.protos.Part(text=prompt)]),tools=python_tool)
-        has_func=True
+        prompt="[task6] 今回だけ、run_python_codeを使用できます。使用したい用途があれば、使用してください。"
+        try:
+            response=solve_chat.send_message(genai.protos.Content(parts=[genai.protos.Part(text=prompt)]),tools=python_tool)
+            has_func=True
+        except:
+            has_func=False
         while has_func:
             has_func=False
             for task in response.candidates[0].content.parts:
