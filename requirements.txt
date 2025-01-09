@@ -13,3 +13,4 @@ numpy
 dropbox
 pillow
 google-generativeai
+scipy
