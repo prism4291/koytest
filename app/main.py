@@ -511,7 +511,11 @@ async def on_message(message):
                     except Exception as e:
                         function_result = str(e)
                     await message_send(ch,"実行結果--------\n"+str(function_result)+"\n----------------")
-                    response=solve_chat.send_message(genai.protos.Part(function_response=genai.protos.FunctionResponse(name=function_name,response={"result": function_result})),tools=python_tool)
+                    try:
+                        response=solve_chat.send_message(genai.protos.Part(function_response=genai.protos.FunctionResponse(name=function_name,response={"result": function_result})),tools=python_tool)
+                    except:
+                        has_func=False
+                    break
         prompt="[task7] これまでの会話を踏まえ、もう一度答えを導いてください。\n"
         prompt+=message.content[6:]
         response=solve_chat.send_message(genai.protos.Content(parts=[genai.protos.Part(text=prompt)]))
