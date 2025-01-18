@@ -431,7 +431,7 @@ mee6_mode=False
 async def loop():
     global xxx,yyy,groq_history,vc,zzz,dbx_token
     now = datetime.datetime.now(pytz.timezone('Asia/Tokyo'))
-    l_day=datetime.datetime(2025,1,18,12,tzinfo=pytz.timezone('Asia/Tokyo'))
+    l_day=datetime.datetime(2025,1,19,12,tzinfo=pytz.timezone('Asia/Tokyo'))
     diff = l_day - now
     diff_days=int(diff.days)
     if now.minute==0:
