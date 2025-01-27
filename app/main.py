@@ -497,7 +497,7 @@ async def on_message(message):
             response3=response3.text
         except Exception as e:
             await message_send(message.channel,"error3\n"+str(e))
-        await message_send(message.channel,response3.text)
+        await message_send(message.channel,response3)
         return
 
 
