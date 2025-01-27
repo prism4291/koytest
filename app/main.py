@@ -414,6 +414,7 @@ groq_history=[]
 gemini_key = os.environ.get("gemini_key")
 genai.configure(api_key=gemini_key)
 gemini_model = genai.GenerativeModel("gemini-2.0-flash-exp")
+gemini_model_thinking = genai.GenerativeModel("gemini-2.0-flash-thinking-exp-01-21")
 
 taro_chat = gemini_model.start_chat()
 friend_chat = None
@@ -475,6 +476,28 @@ async def on_message(message):
     global groq_system,groq_history,yyy,mee6,mee6_mode,taro_chat,friend_chat,professor_chat
     if message.author == client.user:
         return
+    if message.content.startswith('!china'):
+        try:
+            prompt1="日本語で考えてください。"+message.content[6:]
+            response1 = client.chat.completions.create(messages=[{"role": "user","content": prompt1}],model="deepseek-r1-distill-llama-70b").choices[0].message.content
+        except:
+            await message_send(message.channel,"error1")
+        try:
+            prompt2="必要があればpythonを使用してください。"+prompt1
+            gemini_chat1 = gemini_model_thinking.start_chat()
+            response2=gemini_chat1.send_message(genai.protos.Content(parts=[genai.protos.Part(text=prompt2)])).text
+        except:
+            await message_send(message.channel,"error2")
+        try:
+            prompt3="生成AI モデルAの回答\n\n"+response1+"\n\n生成AI モデルBの回答\n\n"+response2+"\n\nこれらの回答を比較検討し、元の質問「"+prompt1+"」に対してより適切で質の高い回答を日本語で生成してください。"
+            gemini_chat2 = gemini_model.start_chat()
+            response3=gemini_chat2.send_message(genai.protos.Content(parts=[genai.protos.Part(text=prompt3)])).text
+        except:
+            await message_send(message.channel,"error3")
+        await message_send(message.channel,response3.text)
+        return
+
+
     if message.content.startswith('!solve'):
         ch=await client.fetch_channel(927206819116490793)
         solve_chat = gemini_model.start_chat()
