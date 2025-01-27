@@ -479,7 +479,7 @@ async def on_message(message):
     if message.content.startswith('!china'):
         try:
             prompt1="日本語で考えてください。"+message.content[6:]
-            response1 = client.chat.completions.create(messages=[{"role": "user","content": prompt1}],model="deepseek-r1-distill-llama-70b")
+            response1 = groq_client.chat.completions.create(messages=[{"role": "user","content": prompt1}],model="deepseek-r1-distill-llama-70b")
             response1=response1.choices[0].message.content
         except Exception as e:
             await message_send(message.channel,"error1\n"+str(e))
