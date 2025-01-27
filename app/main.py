@@ -508,9 +508,17 @@ async def on_message(message):
             response4 = groq_client.chat.completions.create(messages=[{"role": "user","content": prompt4}],model="deepseek-r1-distill-llama-70b")
             response4=response4.choices[0].message.content
         except Exception as e:
-            await message_send(message.channel,"error3\n"+str(e))
+            await message_send(message.channel,"error4\n"+str(e))
             response4=""
-        await message_send(message.channel,"4/4\n"+response4.split("</think>")[-1])
+        try:
+            prompt5="</think>以降の回答を日本語に直して出力してください。latexは、$$で囲むなどして、正式な書き方にしてください。\n\n"+response4
+            gemini_chat3 = gemini_model.start_chat()
+            response5=gemini_chat3.send_message(genai.protos.Content(parts=[genai.protos.Part(text=prompt5)]))
+            response5=response5.text
+        except Exception as e:
+            await message_send(message.channel,"error5\n"+str(e))
+            response5=""
+        await message_send(message.channel,"4/4\n"+response5)
         return
 
 
