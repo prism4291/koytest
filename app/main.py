@@ -479,12 +479,12 @@ async def on_message(message):
     if message.content.startswith('!china'):
         try:
             prompt1="日本語で考えてください。"+message.content[6:]
-            response1 = groq_client.chat.completions.create(messages=[{"role": "user","content": prompt1}],model="deepseek-r1-distill-llama-70b")
+            response1 = groq_client.chat.completions.create(messages=[{"role": "user","content": prompt1+"\nthink in japanese english,answer in japanese english"}],model="deepseek-r1-distill-llama-70b")
             response1=response1.choices[0].message.content
         except Exception as e:
             await message_send(message.channel,"error1\n"+str(e))
             response1=""
-        await send_text_with_limit(message.channel,"1/4\n"+response1)
+        await send_text_with_limit(message.channel,"1/4\n"+response1.split("</think>")[-1])
         try:
             prompt2="pythonを使用して、具体例を検証してください。"+prompt1
             gemini_chat1 = gemini_model_thinking.start_chat()
@@ -506,11 +506,11 @@ async def on_message(message):
         try:
             prompt4=prompt1+"\n\n生成AI モデルCの回答\n\n"+response3+"\n\n回答を検証し、修正してください。その後、要約してください。"
             response4 = groq_client.chat.completions.create(messages=[{"role": "user","content": prompt4}],model="deepseek-r1-distill-llama-70b")
-            response4=response1.choices[0].message.content
+            response4=response4.choices[0].message.content
         except Exception as e:
             await message_send(message.channel,"error3\n"+str(e))
             response4=""
-        await message_send(message.channel,"4/4\n"+response4)
+        await message_send(message.channel,"4/4\n"+response4.split("</think>")[-1])
         return
 
 
