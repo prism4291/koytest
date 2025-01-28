@@ -484,7 +484,7 @@ async def on_message(message):
         except Exception as e:
             await message_send(message.channel,"error1\n"+str(e))
             response1=""
-        await send_text_with_limit(message.channel,"1/4\n"+response1.split("</think>")[-1])
+        #await send_text_with_limit(message.channel,"1/4\n"+response1.split("</think>")[-1])
         try:
             prompt2="pythonを使用して、具体例を検証してください。"+prompt1
             gemini_chat1 = gemini_model_thinking.start_chat()
@@ -493,18 +493,18 @@ async def on_message(message):
         except Exception as e:
             await message_send(message.channel,"error2\n"+str(e))
             response2=""
-        await send_text_with_limit(message.channel,"2/4\n"+response2)
+        #await send_text_with_limit(message.channel,"2/4\n"+response2)
         try:
-            prompt3="生成AI モデルAの回答\n\n"+response1+"\n\n生成AI モデルBの回答\n\n"+response2+"\n\nこれらの回答を比較検討し、元の質問「"+prompt1+"」に対してより適切で質の高い回答を日本語で生成してください。"
+            prompt3="生成AI モデルv1の回答\n\n"+response1+"\n\n生成AI モデルv2の回答\n\n"+response2+"\n\nこれらの回答を比較検討し、元の質問「"+prompt1+"」に対してより適切で質の高い回答を日本語で生成してください。"
             gemini_chat2 = gemini_model.start_chat()
             response3=gemini_chat2.send_message(genai.protos.Content(parts=[genai.protos.Part(text=prompt3)]))
             response3=response3.text
         except Exception as e:
             await message_send(message.channel,"error3\n"+str(e))
             response3=""
-        await send_text_with_limit(message.channel,"3/4\n"+response3)
+        #await send_text_with_limit(message.channel,"3/4\n"+response3)
         try:
-            prompt4=prompt1+"\n\n生成AI モデルCの回答\n\n"+response3+"\n\n回答を検証し、修正してください。その後、要約してください。"
+            prompt4=prompt1+"\n\n生成AI モデルv3の回答\n\n"+response3+"\n\n回答を要約してください。"
             response4 = groq_client.chat.completions.create(messages=[{"role": "user","content": prompt4}],model="deepseek-r1-distill-llama-70b")
             response4=response4.choices[0].message.content
         except Exception as e:
